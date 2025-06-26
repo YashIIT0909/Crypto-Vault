@@ -14,24 +14,24 @@ const Home = () => {
     };
 
 
-    if (!isConnected) {
-        return (
-            <>
+    // if (!isConnected) {
+    //     return (
+    //         <>
 
-                <Toaster
-                    position="top-right"
-                    toastOptions={{
-                        style: {
-                            background: 'rgba(15, 23, 42, 0.9)',
-                            backdropFilter: 'blur(16px)',
-                            color: '#fff',
-                            border: '1px solid rgba(255, 255, 255, 0.1)',
-                        },
-                    }}
-                />
-            </>
-        );
-    }
+    //             <Toaster
+    //                 position="top-right"
+    //                 toastOptions={{
+    //                     style: {
+    //                         background: 'rgba(15, 23, 42, 0.9)',
+    //                         backdropFilter: 'blur(16px)',
+    //                         color: '#fff',
+    //                         border: '1px solid rgba(255, 255, 255, 0.1)',
+    //                     },
+    //                 }}
+    //             />
+    //         </>
+    //     );
+    // }
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">

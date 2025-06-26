@@ -41,14 +41,31 @@ export function useWallet() {
             })
             console.log(res.data);
 
+            const { encryptedKey } = res.data;
 
+            if (!encryptedKey) {
+                // 1. Generate a symmetric key
+                const symmetricKey = crypto.getRandomValues(new Uint8Array(32));
+                const symmetricKeyString = String.fromCharCode(...symmetricKey);
+                const symmetricKeyBase64 = btoa(unescape(encodeURIComponent(symmetricKeyString)));
 
-            // const symmetricKey = crypto.getRandomValues(new Uint8Array(32));
-            // const symmetricKeyBase64 = btoa(String.fromCharCode.apply(null, Array.from(symmetricKey)));
+                const publicKey = await window.ethereum.request({
+                    method: 'eth_getEncryptionPublicKey',
+                    params: [address],
+                });
+                // 2. Encrypt the key with MetaMask public key
+                // const encrypted = await encryptSymmetricKeyWithPublicKey(address, symmetricKeyBase64);
+                console.log("Sending to backend:", { publicKey, symmetricKeyBase64 });
 
+                // 3. Send encrypted key to server to store it
+                const res = await axios.post("http://localhost:3000/api/storekey", {
+                    userAddress: address,
+                    symmetricKey: symmetricKeyBase64,
+                    publicKey: publicKey,
+                });
+                console.log("Server response:", res.data);
+            }
 
-            // // 🔐 Encrypt symmetric key with Ethereum public key
-            // const encryptedKey = await encryptSymmetricKeyWithPublicKey(address, symmetricKeyBase64);
 
 
 
