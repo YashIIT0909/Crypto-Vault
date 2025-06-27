@@ -1,3 +1,4 @@
+import { ethers } from 'ethers';
 export interface Vault {
     id: string;
     name: string;
@@ -43,6 +44,8 @@ export interface WalletState {
     isConnected: boolean;
     isConnecting: boolean;
     error: string | null;
+    signer?: ethers.Signer;
+    contract?: ethers.Contract;
 }
 
 export interface UploadProgress {

@@ -2,22 +2,29 @@ import { Toaster } from 'react-hot-toast';
 import { motion } from 'framer-motion';
 import { Shield, Lock, Globe, ArrowDown, Database, Key, Users, FileImage, CheckCircle, Star } from 'lucide-react';
 import { WalletConnection } from '../components/WalletConnection';
-
 import { useWallet } from '../hooks/useWallet';
+import { useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
 
 const Home = () => {
 
-    const { isConnected } = useWallet();
+    const { isConnected, isConnecting } = useWallet();
+    const navigate = useNavigate();
 
     const scrollToFeatures = () => {
         document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' });
     };
 
+    useEffect(() => {
+        if (isConnected && !isConnecting) {
+            navigate('/dashboard');
+        }
+    }, [isConnected, isConnecting, navigate]);
 
-    // if (!isConnected) {
+    // if (isConnected) {
     //     return (
     //         <>
-
+    //             <Dashboard />
     //             <Toaster
     //                 position="top-right"
     //                 toastOptions={{

@@ -1,9 +1,9 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useEffect, useCallback } from 'react';
 import { ethers } from 'ethers';
-import type { WalletState } from '../types/index.ts';
 import toast from 'react-hot-toast';
-// import { encryptSymmetricKeyWithPublicKey } from '../utils/encryption.ts';
+import { CONTRACT_ADDRESS, CONTRACT_ABI } from '../contract/index.ts';
 import axios from 'axios';
+import { useWallet as useWalletContext } from '../context/WalletContext';
 
 declare global {
     interface Window {
@@ -12,12 +12,7 @@ declare global {
 }
 
 export function useWallet() {
-    const [wallet, setWallet] = useState<WalletState>({
-        address: null,
-        isConnected: false,
-        isConnecting: false,
-        error: null,
-    });
+    const { wallet, setWallet } = useWalletContext();
 
     const connectWallet = useCallback(async () => {
         if (!window.ethereum) {
@@ -35,7 +30,7 @@ export function useWallet() {
             const message = `Welcome to our DApp! Please sign this message to connect your wallet.`;
             const signature = await signer.signMessage(message);
 
-            const res = await axios.post("http://localhost:3000/api/authentication", {
+            const res = await axios.post("http://localhost:8000/api/authentication", {
                 userAddress: address,
                 signature: signature
             })
@@ -58,7 +53,7 @@ export function useWallet() {
                 console.log("Sending to backend:", { publicKey, symmetricKeyBase64 });
 
                 // 3. Send encrypted key to server to store it
-                const res = await axios.post("http://localhost:3000/api/storekey", {
+                const res = await axios.post("http://localhost:8000/api/storekey", {
                     userAddress: address,
                     symmetricKey: symmetricKeyBase64,
                     publicKey: publicKey,
@@ -66,18 +61,24 @@ export function useWallet() {
                 console.log("Server response:", res.data);
             }
 
+            const contract = new ethers.Contract(
+                CONTRACT_ADDRESS,
+                CONTRACT_ABI,
+                signer
+            );
 
+            setWallet({
+                address,
+                isConnected: true,
+                isConnecting: false,
+                error: null,
+                signer,
+                contract,
+            });
+            console.log(contract);
 
+            toast.success('Wallet connected successfully!');
 
-            if (accounts.length > 0) {
-                setWallet({
-                    address: accounts[0],
-                    isConnected: true,
-                    isConnecting: false,
-                    error: null,
-                });
-                toast.success('Wallet connected successfully!');
-            }
         } catch (error: any) {
             setWallet(prev => ({
                 ...prev,
@@ -94,6 +95,8 @@ export function useWallet() {
             isConnected: false,
             isConnecting: false,
             error: null,
+            signer: undefined,
+            contract: undefined,
         });
         toast.success('Wallet disconnected');
     }, []);
@@ -109,7 +112,7 @@ export function useWallet() {
                         setWallet(prev => ({
                             ...prev,
                             address: accounts[0].address,
-                            isConnected: true,
+                            isConnected: false,
                         }));
                     }
                 } catch (error) {
