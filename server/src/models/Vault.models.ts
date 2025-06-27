@@ -29,7 +29,7 @@ const vaultSchema = new mongoose.Schema({
     allowedGroups: [{
         type: String,
     }]
-})
+}, { timestamps: true })
 
 const Vault = mongoose.model("Vault", vaultSchema);
 export default Vault;
