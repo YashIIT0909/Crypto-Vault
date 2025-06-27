@@ -20,6 +20,7 @@ export const Dashboard = () => {
     // const [showAccessModal, setShowAccessModal] = useState(false);
     // const [showDisconnectedModal, setShowDisconnectedModal] = useState(false);
     const [wasConnected, setWasConnected] = useState(false);
+    const [refreshVaults, setRefreshVaults] = useState(false);
 
     // Track connection state changes
     useEffect(() => {
@@ -94,6 +95,9 @@ export const Dashboard = () => {
     //         />
     //     );
     // }
+    const handleCreateVault = () => {
+        setShowCreateModal(true);
+    };
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
@@ -222,6 +226,8 @@ export const Dashboard = () => {
                     <VaultList
                         selectedVault={selectedVault}
                         onSelectVault={setSelectedVault}
+                        onCreateVault={handleCreateVault}
+                        refreshTrigger={refreshVaults}
                     />
 
                     {/* Vault Images */}
@@ -235,6 +241,7 @@ export const Dashboard = () => {
                     <CreateVaultModal
                         isOpen={showCreateModal}
                         onClose={() => setShowCreateModal(false)}
+                        onVaultCreated={() => setRefreshVaults(prev => !prev)}
                     />
                 )}
                 {/* {showUploadModal && selectedVault && (

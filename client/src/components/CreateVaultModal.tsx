@@ -9,9 +9,10 @@ import axios from 'axios';
 interface CreateVaultModalProps {
     isOpen: boolean;
     onClose: () => void;
+    onVaultCreated: () => void;
 }
 
-export function CreateVaultModal({ isOpen, onClose }: CreateVaultModalProps) {
+export function CreateVaultModal({ isOpen, onClose, onVaultCreated }: CreateVaultModalProps) {
     const [name, setName] = useState('');
     const [description, setDescription] = useState('');
     const [isPublic, setIsPublic] = useState(false);
@@ -66,7 +67,7 @@ export function CreateVaultModal({ isOpen, onClose }: CreateVaultModalProps) {
 
 
             const res = await axios.post('http://localhost:8000/api/vault', {
-                vaultId: "5",
+                vaultId: vaultId,
                 vaultName: name,
                 description: description,
                 owner: address
@@ -76,6 +77,7 @@ export function CreateVaultModal({ isOpen, onClose }: CreateVaultModalProps) {
 
 
             toast.success('Vault created successfully!');
+            onVaultCreated();
             onClose();
             setName('');
             setDescription('');

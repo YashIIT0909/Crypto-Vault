@@ -1,140 +1,51 @@
 import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Shield, Image, Users, Calendar, Lock, Unlock, Search, Filter, ChevronLeft, ChevronRight, SortAsc, SortDesc } from 'lucide-react';
+import { Shield, Image, Users, Calendar, Lock, Unlock, Search, Filter, ChevronLeft, ChevronRight, SortAsc, SortDesc, Plus, Sparkles } from 'lucide-react';
 import type { Vault } from '../types';
 import { LoadingSpinner } from './LoadingSpinner';
+import { useWallet } from '../hooks/useWallet';
+import axios from 'axios';
 
 interface VaultListProps {
     selectedVault: Vault | null;
     onSelectVault: (vault: Vault) => void;
+    onCreateVault?: () => void;
+    refreshTrigger?: boolean; // Optional prop to trigger refresh
 }
 
-export function VaultList({ selectedVault, onSelectVault }: VaultListProps) {
+export function VaultList({ selectedVault, onSelectVault, onCreateVault, refreshTrigger }: VaultListProps) {
     const [vaults, setVaults] = useState<Vault[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [sortBy, setSortBy] = useState<'newest' | 'oldest' | 'name' | 'images'>('newest');
     const [currentPage, setCurrentPage] = useState(1);
     const vaultsPerPage = 4;
+    const { address } = useWallet()
 
     // Extended mock vaults data with more entries
     useEffect(() => {
-        const mockVaults: Vault[] = [
-            {
-                id: '1',
-                name: 'Personal Photos',
-                description: 'My private photo collection from travels and events',
-                owner: '0x1234...5678',
-                createdAt: new Date('2024-01-15'),
-                imageCount: 24,
-                isPublic: false,
-            },
-            {
-                id: '2',
-                name: 'Family Memories',
-                description: 'Shared family photos and videos from special occasions',
-                owner: '0x1234...5678',
-                createdAt: new Date('2024-02-10'),
-                imageCount: 56,
-                isPublic: false,
-            },
-            {
-                id: '3',
-                name: 'Business Documents',
-                description: 'Important business files, contracts, and presentations',
-                owner: '0x1234...5678',
-                createdAt: new Date('2024-01-28'),
-                imageCount: 18,
-                isPublic: true,
-            },
-            {
-                id: '4',
-                name: 'Art Collection',
-                description: 'Digital artwork and creative projects portfolio',
-                owner: '0x1234...5678',
-                createdAt: new Date('2024-03-05'),
-                imageCount: 42,
-                isPublic: false,
-            },
-            {
-                id: '5',
-                name: 'Wedding Photos',
-                description: 'Beautiful memories from our special day',
-                owner: '0x1234...5678',
-                createdAt: new Date('2024-02-14'),
-                imageCount: 89,
-                isPublic: false,
-            },
-            {
-                id: '6',
-                name: 'Travel Adventures',
-                description: 'Photos from around the world and amazing destinations',
-                owner: '0x1234...5678',
-                createdAt: new Date('2024-03-20'),
-                imageCount: 156,
-                isPublic: true,
-            },
-            {
-                id: '7',
-                name: 'Work Projects',
-                description: 'Professional work samples and project documentation',
-                owner: '0x1234...5678',
-                createdAt: new Date('2024-01-08'),
-                imageCount: 33,
-                isPublic: false,
-            },
-            {
-                id: '8',
-                name: 'Nature Photography',
-                description: 'Stunning landscapes and wildlife photography',
-                owner: '0x1234...5678',
-                createdAt: new Date('2024-03-12'),
-                imageCount: 67,
-                isPublic: true,
-            },
-            {
-                id: '9',
-                name: 'Food & Recipes',
-                description: 'Delicious food photos and recipe collections',
-                owner: '0x1234...5678',
-                createdAt: new Date('2024-02-28'),
-                imageCount: 29,
-                isPublic: false,
-            },
-            {
-                id: '10',
-                name: 'Sports Moments',
-                description: 'Action shots and memorable sports events',
-                owner: '0x1234...5678',
-                createdAt: new Date('2024-03-15'),
-                imageCount: 45,
-                isPublic: false,
-            },
-            {
-                id: '11',
-                name: 'Architecture',
-                description: 'Beautiful buildings and architectural photography',
-                owner: '0x1234...5678',
-                createdAt: new Date('2024-01-22'),
-                imageCount: 38,
-                isPublic: true,
-            },
-            {
-                id: '12',
-                name: 'Pet Photos',
-                description: 'Adorable photos of our furry family members',
-                owner: '0x1234...5678',
-                createdAt: new Date('2024-02-05'),
-                imageCount: 72,
-                isPublic: false,
-            }
-        ];
+        setLoading(true);
 
-        setTimeout(() => {
-            setVaults(mockVaults);
-            setLoading(false);
-        }, 1000);
-    }, []);
+        const fetchVaults = async () => {
+            if (!address) return;
+
+            try {
+                const res = await axios.get(`http://localhost:8000/api/vault/${address}`);
+                console.log("Fetched vaults:", res.data.vaults);
+                const fetchedVaults = res.data.vaults.map((v: any) => ({
+                    ...v,
+                    name: v.vaultName, // Add this alias
+                }));
+                setVaults(fetchedVaults);
+            } catch (error) {
+                console.error("Error fetching vaults:", error);
+            }
+        };
+
+        fetchVaults();
+
+        setLoading(false);
+    }, [address, refreshTrigger]);
 
     // Filter and sort vaults
     const filteredAndSortedVaults = useMemo(() => {
@@ -146,9 +57,9 @@ export function VaultList({ selectedVault, onSelectVault }: VaultListProps) {
         filtered.sort((a, b) => {
             switch (sortBy) {
                 case 'newest':
-                    return b.createdAt.getTime() - a.createdAt.getTime();
+                    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
                 case 'oldest':
-                    return a.createdAt.getTime() - b.createdAt.getTime();
+                    return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
                 case 'name':
                     return a.name.localeCompare(b.name);
                 case 'images':
@@ -157,6 +68,7 @@ export function VaultList({ selectedVault, onSelectVault }: VaultListProps) {
                     return 0;
             }
         });
+
 
         return filtered;
     }, [vaults, searchTerm, sortBy]);
@@ -203,6 +115,124 @@ export function VaultList({ selectedVault, onSelectVault }: VaultListProps) {
                 <div className="flex items-center justify-center">
                     <LoadingSpinner size="lg" />
                     <span className="ml-3 text-gray-300">Loading your vaults...</span>
+                </div>
+            </motion.div>
+        );
+    }
+
+    // Show empty state when no vaults exist at all
+    if (vaults.length === 0) {
+        return (
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className="relative p-8 overflow-hidden border bg-white/10 backdrop-blur-sm border-white/20 rounded-xl"
+            >
+                {/* Animated background elements */}
+                <div className="absolute inset-0 overflow-hidden">
+                    {[...Array(6)].map((_, i) => (
+                        <motion.div
+                            key={i}
+                            className="absolute w-2 h-2 rounded-full bg-purple-400/20"
+                            animate={{
+                                x: [0, 50, 0],
+                                y: [0, -50, 0],
+                                opacity: [0.2, 0.6, 0.2],
+                            }}
+                            transition={{
+                                duration: 3 + i,
+                                repeat: Infinity,
+                                delay: i * 0.5,
+                            }}
+                            style={{
+                                left: `${10 + i * 15}%`,
+                                top: `${20 + i * 10}%`,
+                            }}
+                        />
+                    ))}
+                </div>
+
+                <div className="relative z-10 py-16 text-center">
+                    {/* Icon with gradient background */}
+                    <motion.div
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        transition={{ delay: 0.5, type: "spring", stiffness: 200 }}
+                        className="p-6 mx-auto mb-8 border rounded-full bg-gradient-to-br from-purple-600/20 to-blue-600/20 w-fit border-purple-500/30"
+                    >
+                        <Shield className="w-16 h-16 text-purple-400" />
+                    </motion.div>
+
+                    {/* Main heading */}
+                    <motion.h2
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.6 }}
+                        className="flex items-center justify-center gap-2 mb-4 text-3xl font-bold text-white"
+                    >
+                        Welcome to CryptoVault
+                        <Sparkles className="w-6 h-6 text-yellow-400" />
+                    </motion.h2>
+
+                    {/* Description */}
+                    <motion.p
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.7 }}
+                        className="max-w-md mx-auto mb-8 text-lg leading-relaxed text-gray-300"
+                    >
+                        Create your first secure vault to start storing and protecting your valuable images with blockchain technology.
+                    </motion.p>
+
+                    {/* Features list */}
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.8 }}
+                        className="grid max-w-2xl grid-cols-1 gap-4 mx-auto mb-8 sm:grid-cols-3"
+                    >
+                        {[
+                            { icon: Lock, text: 'End-to-End Encryption' },
+                            { icon: Shield, text: 'Blockchain Security' },
+                            { icon: Users, text: 'Access Control' },
+                        ].map((feature, index) => (
+                            <motion.div
+                                key={feature.text}
+                                initial={{ opacity: 0, scale: 0.9 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                transition={{ delay: 0.9 + index * 0.1 }}
+                                className="flex flex-col items-center gap-2 p-4 border rounded-lg bg-white/5 border-white/10"
+                            >
+                                <feature.icon className="w-6 h-6 text-purple-400" />
+                                <span className="text-sm font-medium text-gray-300">{feature.text}</span>
+                            </motion.div>
+                        ))}
+                    </motion.div>
+
+                    {/* Create vault button */}
+                    <motion.button
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 1.0 }}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={onCreateVault}
+                        className="flex items-center gap-3 px-8 py-4 mx-auto font-medium text-white transition-all duration-200 shadow-lg bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 rounded-xl hover:shadow-purple-500/25"
+                    >
+                        <Plus className="w-5 h-5" />
+                        Create Your First Vault
+                    </motion.button>
+
+                    {/* Additional info */}
+                    <motion.p
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 1.1 }}
+                        className="mt-6 text-sm text-gray-500"
+                    >
+                        Your images will be encrypted and stored securely on IPFS
+                    </motion.p>
                 </div>
             </motion.div>
         );
@@ -272,13 +302,22 @@ export function VaultList({ selectedVault, onSelectVault }: VaultListProps) {
                             exit={{ opacity: 0 }}
                             className="py-16 text-center"
                         >
-                            <Shield className="w-16 h-16 mx-auto mb-4 text-gray-500" />
+                            <Search className="w-16 h-16 mx-auto mb-4 text-gray-500" />
                             <p className="mb-2 text-lg text-gray-400">
-                                {searchTerm ? 'No vaults match your search' : 'No vaults found'}
+                                No vaults match your search
                             </p>
-                            <p className="text-sm text-gray-500">
-                                {searchTerm ? 'Try adjusting your search terms' : 'Create your first vault to get started'}
+                            <p className="mb-6 text-sm text-gray-500">
+                                Try adjusting your search terms or create a new vault
                             </p>
+                            <motion.button
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
+                                onClick={onCreateVault}
+                                className="flex items-center gap-2 px-6 py-3 mx-auto font-medium text-white transition-all duration-200 shadow-lg bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 rounded-xl hover:shadow-purple-500/25"
+                            >
+                                <Plus className="w-4 h-4" />
+                                Create New Vault
+                            </motion.button>
                         </motion.div>
                     ) : (
                         currentVaults.map((vault, index) => (
@@ -313,7 +352,7 @@ export function VaultList({ selectedVault, onSelectVault }: VaultListProps) {
                                     </div>
                                     <div className="flex items-center gap-1 text-xs text-gray-400">
                                         <Calendar className="w-3 h-3" />
-                                        {vault.createdAt.toLocaleDateString()}
+                                        {new Date(vault.createdAt).toLocaleDateString()}
                                     </div>
                                 </div>
 
