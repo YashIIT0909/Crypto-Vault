@@ -3,7 +3,7 @@ dotenv.config();
 import express from "express";
 import cors from "cors";
 import connectDB from "./db/connect";
-// import vaultRoute from "./routes/Vault.routes";
+import vaultRoute from "./routes/Vault.routes";
 import authenticationRoute from "./routes/Authentication.routes";
 import storekeyRoute from "./routes/storekey.routes";
 
@@ -18,7 +18,11 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use("/api", authenticationRoute);
 app.use("/api", storekeyRoute);
-// app.use("/api", vaultRoute);
+app.use("/api", vaultRoute);
+app.use((req, res) => {
+    console.log(`404 - ${req.method} ${req.originalUrl}`);
+    res.status(404).send('Not found');
+});
 
 
 
@@ -32,7 +36,7 @@ async function serverStart() {
         console.log("Connected to MongoDB");
 
         app.listen(process.env.PORT, () => {
-            console.log("Server is running on port 3000");
+            console.log(`Server is running on port ${process.env.PORT}`);
         });
 
     } catch (error) {

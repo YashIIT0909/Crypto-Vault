@@ -1,7 +1,7 @@
-// import express from 'express';
+import express from 'express';
+import { CreateVaultController } from '../controllers/CreateVaultController';
+const router = express.Router();
 
-// const router = express.Router();
+router.post("/vault", CreateVaultController);
 
-// router.post("/vault",)
-
-// export default router
+export default router;

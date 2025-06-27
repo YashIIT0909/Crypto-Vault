@@ -3,6 +3,7 @@ import { Request, Response, NextFunction } from "express";
 import User from "../models/User.models";
 import { asyncHandler } from "../utils/asyncHandler";
 
+
 export const AuthController = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { userAddress, signature } = req.body;
@@ -15,10 +16,12 @@ export const AuthController = asyncHandler(async (req: Request, res: Response, n
         const message = `Welcome to our DApp! Please sign this message to connect your wallet.`;
         const signerAddress = ethers.verifyMessage(message, signature);
 
+
         if (signerAddress.toLowerCase() !== userAddress.toLowerCase()) {
             res.status(401).json({ error: "Invalid signature" });
             return;
         }
+        console.log("User Address:", userAddress);
 
         let user = await User.findOne({ userAddress });
 
