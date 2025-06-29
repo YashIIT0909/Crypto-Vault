@@ -4,7 +4,7 @@ import { Plus, Shield, Image, Users, Settings, User, Copy, ExternalLink } from '
 import { VaultList } from '../components/VaultList';
 // import { VaultImageGallery } from './VaultImageGallery';
 import { CreateVaultModal } from '../components/CreateVaultModal';
-// import { ImageUploadModal } from './ImageUploadModal';
+import { ImageUploadModal } from '../components/ImageUploadModal';
 // import { AccessControlModal } from './AccessControlModal';
 // import { WalletDisconnectedModal } from './WalletDisconnectedModal';
 import { useWallet } from '../hooks/useWallet';
@@ -16,7 +16,7 @@ export const Dashboard = () => {
     const { address, isConnected } = useWallet();
     const [selectedVault, setSelectedVault] = useState<Vault | null>(null);
     const [showCreateModal, setShowCreateModal] = useState(false);
-    // const [showUploadModal, setShowUploadModal] = useState(false);
+    const [showUploadModal, setShowUploadModal] = useState(false);
     // const [showAccessModal, setShowAccessModal] = useState(false);
     // const [showDisconnectedModal, setShowDisconnectedModal] = useState(false);
     const [wasConnected, setWasConnected] = useState(false);
@@ -200,7 +200,7 @@ export const Dashboard = () => {
                         <Plus className="w-5 h-5" />
                         Create Vault
                     </button>
-                    {/* {selectedVault && (
+                    {selectedVault && (
                         <>
                             <button
                                 onClick={() => setShowUploadModal(true)}
@@ -209,15 +209,15 @@ export const Dashboard = () => {
                                 <Image className="w-5 h-5" />
                                 Upload Image
                             </button>
-                            <button
+                            {/* <button
                                 onClick={() => setShowAccessModal(true)}
                                 className="flex items-center gap-2 px-6 py-3 font-medium text-white transition-all duration-200 shadow-lg bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 rounded-xl hover:shadow-orange-500/25"
                             >
                                 <Users className="w-5 h-5" />
                                 Manage Access
-                            </button>
+                            </button> */}
                         </>
-                    )} */}
+                    )}
                 </motion.div>
 
                 {/* Main Content - Single Column Layout */}
@@ -244,13 +244,13 @@ export const Dashboard = () => {
                         onVaultCreated={() => setRefreshVaults(prev => !prev)}
                     />
                 )}
-                {/* {showUploadModal && selectedVault && (
+                {showUploadModal && selectedVault && (
                     <ImageUploadModal
                         isOpen={showUploadModal}
                         onClose={() => setShowUploadModal(false)}
                         vault={selectedVault}
                     />
-                )} */}
+                )}
                 {/* {showAccessModal && selectedVault && (
                     <AccessControlModal
                         isOpen={showAccessModal}

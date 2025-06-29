@@ -34,6 +34,7 @@ export function VaultList({ selectedVault, onSelectVault, onCreateVault, refresh
                 console.log("Fetched vaults:", res.data.vaults);
                 const fetchedVaults = res.data.vaults.map((v: any) => ({
                     ...v,
+                    id: v.vaultId,
                     name: v.vaultName, // Add this alias
                 }));
                 setVaults(fetchedVaults);

@@ -49,7 +49,7 @@ export interface WalletState {
 }
 
 export interface UploadProgress {
-    stage: 'encrypting' | 'uploading' | 'saving' | 'complete';
+    stage: 'fetching key' | 'decrypting key' | 'encrypting' | 'uploading' | 'saving' | 'complete';
     progress: number;
     message: string;
 }

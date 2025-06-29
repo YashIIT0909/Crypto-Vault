@@ -4,7 +4,8 @@ import toast from 'react-hot-toast';
 import { CONTRACT_ADDRESS, CONTRACT_ABI } from '../contract/index.ts';
 import axios from 'axios';
 import { useWallet as useWalletContext } from '../context/WalletContext';
-
+import { generateSymmetricKey } from '../utils/generateSymmetricKey.ts';
+import { encryptSymmetricKey } from '../utils/encryptSymmetricKey.ts';
 declare global {
     interface Window {
         ethereum?: any;
@@ -33,30 +34,27 @@ export function useWallet() {
             const res = await axios.post("http://localhost:8000/api/authentication", {
                 userAddress: address,
                 signature: signature
-            })
+            },
+                {
+                    withCredentials: true,
+                })
             console.log(res.data);
 
             const { encryptedKey } = res.data;
 
             if (!encryptedKey) {
-                // 1. Generate a symmetric key
-                const symmetricKey = crypto.getRandomValues(new Uint8Array(32));
-                const symmetricKeyString = String.fromCharCode(...symmetricKey);
-                const symmetricKeyBase64 = btoa(unescape(encodeURIComponent(symmetricKeyString)));
+                const symKey = await generateSymmetricKey();
 
-                const publicKey = await window.ethereum.request({
-                    method: 'eth_getEncryptionPublicKey',
-                    params: [address],
-                });
-                // 2. Encrypt the key with MetaMask public key
-                // const encrypted = await encryptSymmetricKeyWithPublicKey(address, symmetricKeyBase64);
-                console.log("Sending to backend:", { publicKey, symmetricKeyBase64 });
+                console.log("Generated symmetric key:", symKey);
+                console.log("address:", address);
 
-                // 3. Send encrypted key to server to store it
+                const encryptedKey = await encryptSymmetricKey(symKey, address)
+
+                console.log(encryptedKey);
+
                 const res = await axios.post("http://localhost:8000/api/storekey", {
                     userAddress: address,
-                    symmetricKey: symmetricKeyBase64,
-                    publicKey: publicKey,
+                    encryptedKey: encryptedKey
                 });
                 console.log("Server response:", res.data);
             }
