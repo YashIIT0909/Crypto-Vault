@@ -3,26 +3,28 @@ dotenv.config();
 import express from "express";
 import cors from "cors";
 import connectDB from "./db/connect";
+import cookieParser from "cookie-parser";
+
 import vaultRoute from "./routes/Vault.routes";
 import authenticationRoute from "./routes/Authentication.routes";
 import storekeyRoute from "./routes/storekey.routes";
-
+import getkeyRoute from "./routes/GetKey.routes";
 
 
 const app = express();
 
-app.use(cors());
+app.use(cors({
+    origin: 'http://localhost:5173',
+    credentials: true, // This allows setting cookies and headers
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
+app.use(cookieParser());
 
 app.use("/api", authenticationRoute);
 app.use("/api", storekeyRoute);
 app.use("/api", vaultRoute);
-app.use((req, res) => {
-    console.log(`404 - ${req.method} ${req.originalUrl}`);
-    res.status(404).send('Not found');
-});
+app.use("/api", getkeyRoute);
 
 
 

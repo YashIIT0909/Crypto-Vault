@@ -1,18 +1,16 @@
 import { Request, Response, NextFunction } from 'express';
 import { asyncHandler } from '../utils/asyncHandler';
-import { encryptSymmetricKey } from '../utils/encryption';
 import User from '../models/User.models';
 
 export const StoreKeyController = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const { userAddress, symmetricKey, publicKey } = req.body;
+        const { userAddress, encryptedKey } = req.body;
 
-        if (!symmetricKey || !userAddress || !publicKey) {
-            res.status(400).json({ error: 'Missing required fields: symmetricKey, userAddress or publicKey' });
+        if (!userAddress || !encryptedKey) {
+            res.status(400).json({ error: 'Missing required fields: userAddress or encrypted key' });
             return;
         }
 
-        const encryptedKey = encryptSymmetricKey(publicKey, symmetricKey);
 
         const user = await User.findOneAndUpdate({ userAddress: userAddress },
             {

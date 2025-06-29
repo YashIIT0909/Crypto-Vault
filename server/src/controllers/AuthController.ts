@@ -2,6 +2,7 @@ import { ethers } from "ethers";
 import { Request, Response, NextFunction } from "express";
 import User from "../models/User.models";
 import { asyncHandler } from "../utils/asyncHandler";
+import jwt from "jsonwebtoken";
 
 
 export const AuthController = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
@@ -29,7 +30,28 @@ export const AuthController = asyncHandler(async (req: Request, res: Response, n
             user = await User.create({ userAddress });
         }
 
-        res.status(200).json({ message: "User created successfully", encryptedKey: user.encryptedKey || null });
+        if (!process.env.JWT_SECRET) {
+            throw new Error("JWT_SECRET environment variable is not defined");
+        }
+
+        const token = jwt.sign(
+            { userAddress: userAddress },
+            process.env.JWT_SECRET,
+            { expiresIn: '2h' }
+        );
+
+        console.log("Generated Token:", token);
+
+        const options = {
+            httpOnly: true,
+            secure: true
+        }
+
+
+        res.status(200)
+            .cookie("token", token, options)
+            .json({ message: "User created successfully", encryptedKey: user.encryptedKey || null });
+
     } catch (error) {
         console.error("Authentication error:", error);
         res.status(500).json({ error: "Authentication Failed" });
