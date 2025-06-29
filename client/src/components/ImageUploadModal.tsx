@@ -7,6 +7,8 @@ import toast from 'react-hot-toast';
 import { fetchEncryptedKey } from '../utils/fetchEncryptedKey';
 import { decryptSymmetricKey } from '../utils/decryptSymmetricKey'; // Assume this function fetches the encryption key
 import { useWallet } from '../hooks/useWallet';
+import { encryptFileWithKey } from '../utils/encryptFile'; // Assume this function encrypts the file with the symmetric key
+import axios from 'axios';
 
 interface ImageUploadModalProps {
     isOpen: boolean;
@@ -20,7 +22,7 @@ export function ImageUploadModal({ isOpen, onClose, vault }: ImageUploadModalPro
     const [progress, setProgress] = useState<UploadProgress | null>(null);
     const [dragOver, setDragOver] = useState(false);
 
-    const { address } = useWallet();
+    const { address, contract } = useWallet();
 
 
     const handleDragOver = useCallback((e: React.DragEvent) => {
@@ -96,6 +98,7 @@ export function ImageUploadModal({ isOpen, onClose, vault }: ImageUploadModalPro
             });
 
             console.log(`Address: ${address}`);
+            console.log("Vault", vault)
 
             if (!address) {
                 throw new Error('Wallet address is not available');
@@ -114,6 +117,12 @@ export function ImageUploadModal({ isOpen, onClose, vault }: ImageUploadModalPro
                 message: `Encrypting ${selectedFile.name}...`,
             });
 
+            const encryptedData = await encryptFileWithKey(selectedFile, symmetricKey);
+            if (!encryptedData) {
+                throw new Error('Failed to encrypt file');
+            }
+            console.log('Encrypted file data:', encryptedData);
+
 
             // Stage 2: Uploading to IPFS
             setProgress({
@@ -122,18 +131,37 @@ export function ImageUploadModal({ isOpen, onClose, vault }: ImageUploadModalPro
                 message: `Uploading ${selectedFile.name} to IPFS...`,
             });
 
-            // const ipfsHash = await IPFSService.uploadFile(encryptedData, selectedFile.name);
+
+            const formData = new FormData();
+            formData.append('file', encryptedData, selectedFile.name); // file name is preserved
+            formData.append('vaultId', vault.id);
+            formData.append('originalName', selectedFile.name);
+            formData.append('originalSize', selectedFile.size.toString());
+
+            const res = await axios.post("http://localhost:8000/api/upload", formData, {
+                withCredentials: true,
+            });
+
+            if (res.status !== 200) {
+                throw new Error('Failed to upload file to IPFS');
+            }
+
+            console.log('File uploaded to IPFS:', res.data);
 
             // Stage 3: Saving to blockchain
             setProgress({
                 stage: 'saving',
                 progress: 80,
-                message: `Saving ${selectedFile.name} to blockchain...`,
+                message: `Saving ${selectedFile.name} to contract...`,
             });
 
             // Simulate blockchain interaction
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            if (!contract) {
+                throw new Error('Smart contract instance is not available');
+            }
+            const tx = await contract.addImageToVault(vault.id, res.data.resPinata.cid)
 
+            await tx.wait()
             // Stage 4: Complete
             setProgress({
                 stage: 'complete',
