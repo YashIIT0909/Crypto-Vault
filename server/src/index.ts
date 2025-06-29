@@ -9,6 +9,7 @@ import vaultRoute from "./routes/Vault.routes";
 import authenticationRoute from "./routes/Authentication.routes";
 import storekeyRoute from "./routes/storekey.routes";
 import getkeyRoute from "./routes/GetKey.routes";
+import uploadimageRoute from "./routes/UploadImage.routes";
 
 
 const app = express();
@@ -25,6 +26,8 @@ app.use("/api", authenticationRoute);
 app.use("/api", storekeyRoute);
 app.use("/api", vaultRoute);
 app.use("/api", getkeyRoute);
+app.use("/api", uploadimageRoute);
+
 
 
 
