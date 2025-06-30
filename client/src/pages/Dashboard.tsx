@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Plus, Shield, Image, Users, Settings, User, Copy, ExternalLink } from 'lucide-react';
 import { VaultList } from '../components/VaultList';
-// import { VaultImageGallery } from './VaultImageGallery';
+import { VaultImageGallery } from '../components/VaultImageGallery';
 import { CreateVaultModal } from '../components/CreateVaultModal';
 import { ImageUploadModal } from '../components/ImageUploadModal';
 // import { AccessControlModal } from './AccessControlModal';
@@ -97,6 +97,9 @@ export const Dashboard = () => {
     // }
     const handleCreateVault = () => {
         setShowCreateModal(true);
+    };
+    const handleUploadImage = () => {
+        setShowUploadModal(true);
     };
 
     return (
@@ -231,9 +234,12 @@ export const Dashboard = () => {
                     />
 
                     {/* Vault Images */}
-                    {/* {selectedVault && (
-                        <VaultImageGallery vault={selectedVault} />
-                    )} */}
+                    {selectedVault && (
+                        <VaultImageGallery
+                            vault={selectedVault}
+                            onUploadClick={handleUploadImage}
+                        />
+                    )}
                 </div>
 
                 {/* Modals */}

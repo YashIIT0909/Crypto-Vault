@@ -15,10 +15,9 @@ export interface VaultImage {
     ipfsHash: string;
     filename: string;
     uploadedAt: Date;
-    encryptedKey: string;
-    thumbnail?: string;
+    thumbnail?: string | null;
     size: number;
-    mimeType: string;
+    // mimeType: string;
 }
 
 export interface GroupAccess {
