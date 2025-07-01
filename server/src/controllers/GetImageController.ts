@@ -8,7 +8,7 @@ import axios from "axios";
 
 async function fetchImageFromPinata(ipfsHash: string): Promise<any> {
     const PINATA_GATEWAY = `https://${process.env.PINATA_GATEWAY}/ipfs/`
-    const res = await axios(`${PINATA_GATEWAY}${ipfsHash}`)
+    const res = await axios.get(`${PINATA_GATEWAY}${ipfsHash}`, { responseType: 'stream' })
     return res.data;
 }
 
@@ -51,5 +51,30 @@ export const GetImageMetadataController = asyncHandler(async (req: Request, res:
         res.status(500).json({ error: "Failed to fetch image metadata." });
 
 
+    }
+});
+
+export const GetImageDataController = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { ipfsHash } = req.params;
+
+        if (!ipfsHash) {
+            res.status(400).json({ error: "IPFS hash is required." });
+            return;
+        }
+
+        const imageData = await fetchImageFromPinata(ipfsHash);
+
+        if (!imageData) {
+            res.status(404).json({ error: "Image not found on IPFS." });
+            return;
+        }
+
+        res.setHeader('Content-Type', 'application/octet-stream');
+        imageData.pipe(res);
+
+    } catch (error) {
+        console.error("Error fetching image data:", error);
+        res.status(500).json({ error: "Failed to fetch image data." });
     }
 });

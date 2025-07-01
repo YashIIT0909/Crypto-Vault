@@ -4,6 +4,8 @@ import Vault from "../models/Vault.models";
 import Image from "../models/Image.models";
 import { asyncHandler } from "../utils/asyncHandler";
 import { PinataSDK } from "pinata";
+import fs from "fs";
+import { Readable } from "stream";
 
 export const UploadImageController = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -33,7 +35,9 @@ export const UploadImageController = asyncHandler(async (req: Request, res: Resp
             pinataGateway: process.env.PINATA_GATEWAY,
         });
 
-        const resPinata = await pinata.upload.public.json({ file });
+        // Construct a File object from the buffer for Pinata SDK
+        const fileForPinata = new File([file.buffer], originalName, { type: file.mimetype });
+        const resPinata = await pinata.upload.public.file(fileForPinata).name(originalName);
 
         const image = await Image.create({
             imageName: originalName,
