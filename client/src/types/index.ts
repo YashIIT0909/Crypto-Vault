@@ -17,7 +17,7 @@ export interface VaultImage {
     uploadedAt: Date;
     thumbnail?: string | null;
     size: number;
-    // mimeType: string;
+    mimeType: string;
 }
 
 export interface GroupAccess {

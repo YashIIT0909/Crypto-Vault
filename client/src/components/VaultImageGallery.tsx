@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Image, Download, Eye, Calendar, Lock, Loader2, AlertCircle, Search, Filter, Grid, List, Upload, Sparkles, Shield, Plus, Database, Key } from 'lucide-react';
+import { Image, Download, Eye, Calendar, Lock, Loader2, AlertCircle, Search, Filter, Grid, List, Upload, Sparkles, Shield, Plus, Database, Key, Unlock } from 'lucide-react';
 import type { Vault, VaultImage } from '../types';
 import { LoadingSpinner } from './LoadingSpinner';
 import { ImageViewerModal } from './ImageViewerModal';
@@ -21,7 +21,12 @@ export function VaultImageGallery({ vault, onUploadClick }: VaultImageGalleryPro
     const [searchTerm, setSearchTerm] = useState('');
     const [sortBy, setSortBy] = useState<'newest' | 'oldest' | 'name'>('newest');
     const [imageLoadingStates, setImageLoadingStates] = useState<Record<string, boolean>>({});
+
     const { contract } = useWallet();
+    // New state for tracking decrypted images and decryption process
+    const [decryptedImages, setDecryptedImages] = useState<Record<string, string>>({});
+    const [decryptingImages, setDecryptingImages] = useState<Record<string, boolean>>({});
+
     // Mock images data - replace with actual API calls
     useEffect(() => {
         const fetchImages = async () => {
@@ -47,7 +52,7 @@ export function VaultImageGallery({ vault, onUploadClick }: VaultImageGalleryPro
                         ipfsHashes.map(async (hash) => {
                             try {
                                 // 1. Fetch metadata from your backend DB
-                                const res = await axios.get(`http://localhost:8000/api/vaults/${vault.id}/images/${hash}`);
+                                const res = await axios.get(`http://localhost:8000/api/vaults/${vault.id}/images/${hash}`, { withCredentials: true });
                                 const metadata = res.data;
                                 // 2. Fetch encrypted symmetric key
 
@@ -61,7 +66,7 @@ export function VaultImageGallery({ vault, onUploadClick }: VaultImageGalleryPro
                                     uploadedAt: new Date(metadata.uploadedAt),
                                     thumbnail: null, // decrypted later
                                     size: metadata.size,
-                                    // mimeType: metadata.mimeType,
+                                    mimeType: metadata.mimeType,
                                 } as VaultImage;
                             } catch (err) {
                                 console.warn(`Skipping hash ${hash}:`, err);
@@ -74,73 +79,74 @@ export function VaultImageGallery({ vault, onUploadClick }: VaultImageGalleryPro
                 setImages(enrichedImages);
 
 
+
                 // const mockImages: VaultImage[] = [
-                //     {
-                //         id: '1',
-                //         vaultId: vault.id,
-                //         ipfsHash: 'QmYjtig7VJQ6XsnUjqqJvj7QaMcCAwtrgNdahSiFofrE7o',
-                //         filename: 'sunset-beach.jpg',
-                //         uploadedAt: new Date('2024-01-15T10:30:00'),
-                //         encryptedKey: 'encrypted-key-1',
-                //         thumbnail: 'https://images.pexels.com/photos/1118873/pexels-photo-1118873.jpeg?auto=compress&cs=tinysrgb&w=400',
-                //         size: 2048576,
-                //         mimeType: 'image/jpeg'
-                //     },
-                //     {
-                //         id: '2',
-                //         vaultId: vault.id,
-                //         ipfsHash: 'QmPChd2hVbrJ6bfo3WBcTW4iZnpHm8TEzWkLHmLpXhF88W',
-                //         filename: 'mountain-landscape.png',
-                //         uploadedAt: new Date('2024-01-20T14:15:00'),
-                //         encryptedKey: 'encrypted-key-2',
-                //         thumbnail: 'https://images.pexels.com/photos/1366919/pexels-photo-1366919.jpeg?auto=compress&cs=tinysrgb&w=400',
-                //         size: 3145728,
-                //         mimeType: 'image/png'
-                //     },
-                //     {
-                //         id: '3',
-                //         vaultId: vault.id,
-                //         ipfsHash: 'QmNLei78zWmzUdbeRB3CiUfAizWUrbeeZh5K1rhAQKCh51',
-                //         filename: 'city-night.jpg',
-                //         uploadedAt: new Date('2024-02-01T20:45:00'),
-                //         encryptedKey: 'encrypted-key-3',
-                //         thumbnail: 'https://images.pexels.com/photos/1519088/pexels-photo-1519088.jpeg?auto=compress&cs=tinysrgb&w=400',
-                //         size: 1572864,
-                //         mimeType: 'image/jpeg'
-                //     },
-                //     {
-                //         id: '4',
-                //         vaultId: vault.id,
-                //         ipfsHash: 'QmRAQB6YaCyidP37UdDnjFY5vQuiBrcqdyoW1CuDgwxkD4',
-                //         filename: 'forest-path.jpg',
-                //         uploadedAt: new Date('2024-02-05T09:20:00'),
-                //         encryptedKey: 'encrypted-key-4',
-                //         thumbnail: 'https://images.pexels.com/photos/1496373/pexels-photo-1496373.jpeg?auto=compress&cs=tinysrgb&w=400',
-                //         size: 2621440,
-                //         mimeType: 'image/jpeg'
-                //     },
-                //     {
-                //         id: '5',
-                //         vaultId: vault.id,
-                //         ipfsHash: 'QmYwAPJzv5CZsnA625s3Xf2nemtYgPpHdWEz79ojWnPbdG',
-                //         filename: 'ocean-waves.jpg',
-                //         uploadedAt: new Date('2024-02-10T16:30:00'),
-                //         encryptedKey: 'encrypted-key-5',
-                //         thumbnail: 'https://images.pexels.com/photos/1001682/pexels-photo-1001682.jpeg?auto=compress&cs=tinysrgb&w=400',
-                //         size: 1835008,
-                //         mimeType: 'image/jpeg'
-                //     },
-                //     {
-                //         id: '6',
-                //         vaultId: vault.id,
-                //         ipfsHash: 'QmPpBoPqwxkrp3s9FwnHtD6RQ45Y7yo1AuTRdRGulcqxGK',
-                //         filename: 'desert-dunes.png',
-                //         uploadedAt: new Date('2024-02-12T11:45:00'),
-                //         encryptedKey: 'encrypted-key-6',
-                //         thumbnail: 'https://images.pexels.com/photos/1770809/pexels-photo-1770809.jpeg?auto=compress&cs=tinysrgb&w=400',
-                //         size: 4194304,
-                //         mimeType: 'image/png'
-                //     }
+                //   {
+                //     id: '1',
+                //     vaultId: vault.id,
+                //     ipfsHash: 'QmYjtig7VJQ6XsnUjqqJvj7QaMcCAwtrgNdahSiFofrE7o',
+                //     filename: 'sunset-beach.jpg',
+                //     uploadedAt: new Date('2024-01-15T10:30:00'),
+                //     encryptedKey: 'encrypted-key-1',
+                //     thumbnail: 'https://images.pexels.com/photos/1118873/pexels-photo-1118873.jpeg?auto=compress&cs=tinysrgb&w=400',
+                //     size: 2048576,
+                //     mimeType: 'image/jpeg'
+                //   },
+                //   {
+                //     id: '2',
+                //     vaultId: vault.id,
+                //     ipfsHash: 'QmPChd2hVbrJ6bfo3WBcTW4iZnpHm8TEzWkLHmLpXhF88W',
+                //     filename: 'mountain-landscape.png',
+                //     uploadedAt: new Date('2024-01-20T14:15:00'),
+                //     encryptedKey: 'encrypted-key-2',
+                //     thumbnail: 'https://images.pexels.com/photos/1366919/pexels-photo-1366919.jpeg?auto=compress&cs=tinysrgb&w=400',
+                //     size: 3145728,
+                //     mimeType: 'image/png'
+                //   },
+                //   {
+                //     id: '3',
+                //     vaultId: vault.id,
+                //     ipfsHash: 'QmNLei78zWmzUdbeRB3CiUfAizWUrbeeZh5K1rhAQKCh51',
+                //     filename: 'city-night.jpg',
+                //     uploadedAt: new Date('2024-02-01T20:45:00'),
+                //     encryptedKey: 'encrypted-key-3',
+                //     thumbnail: 'https://images.pexels.com/photos/1519088/pexels-photo-1519088.jpeg?auto=compress&cs=tinysrgb&w=400',
+                //     size: 1572864,
+                //     mimeType: 'image/jpeg'
+                //   },
+                //   {
+                //     id: '4',
+                //     vaultId: vault.id,
+                //     ipfsHash: 'QmRAQB6YaCyidP37UdDnjFY5vQuiBrcqdyoW1CuDgwxkD4',
+                //     filename: 'forest-path.jpg',
+                //     uploadedAt: new Date('2024-02-05T09:20:00'),
+                //     encryptedKey: 'encrypted-key-4',
+                //     thumbnail: 'https://images.pexels.com/photos/1496373/pexels-photo-1496373.jpeg?auto=compress&cs=tinysrgb&w=400',
+                //     size: 2621440,
+                //     mimeType: 'image/jpeg'
+                //   },
+                //   {
+                //     id: '5',
+                //     vaultId: vault.id,
+                //     ipfsHash: 'QmYwAPJzv5CZsnA625s3Xf2nemtYgPpHdWEz79ojWnPbdG',
+                //     filename: 'ocean-waves.jpg',
+                //     uploadedAt: new Date('2024-02-10T16:30:00'),
+                //     encryptedKey: 'encrypted-key-5',
+                //     thumbnail: 'https://images.pexels.com/photos/1001682/pexels-photo-1001682.jpeg?auto=compress&cs=tinysrgb&w=400',
+                //     size: 1835008,
+                //     mimeType: 'image/jpeg'
+                //   },
+                //   {
+                //     id: '6',
+                //     vaultId: vault.id,
+                //     ipfsHash: 'QmPpBoPqwxkrp3s9FwnHtD6RQ45Y7yo1AuTRdRGulcqxGK',
+                //     filename: 'desert-dunes.png',
+                //     uploadedAt: new Date('2024-02-12T11:45:00'),
+                //     encryptedKey: 'encrypted-key-6',
+                //     thumbnail: 'https://images.pexels.com/photos/1770809/pexels-photo-1770809.jpeg?auto=compress&cs=tinysrgb&w=400',
+                //     size: 4194304,
+                //     mimeType: 'image/png'
+                //   }
                 // ];
 
                 // setImages(mockImages);
@@ -154,6 +160,41 @@ export function VaultImageGallery({ vault, onUploadClick }: VaultImageGalleryPro
 
         fetchImages();
     }, [vault.id]);
+
+    // Function to handle image decryption
+    const handleImageDecryption = async (image: VaultImage) => {
+        // If already decrypted, just open the modal
+        if (decryptedImages[image.id]) {
+            setSelectedImage(image);
+            return;
+        }
+
+        // If currently decrypting, don't start again
+        if (decryptingImages[image.id]) {
+            return;
+        }
+
+        // Start decryption process
+        setDecryptingImages(prev => ({ ...prev, [image.id]: true }));
+
+        try {
+            // Simulate decryption process
+            await new Promise(resolve => setTimeout(resolve, 2500));
+
+            // Store the decrypted image URL (in real app, this would be the actual decrypted image)
+            setDecryptedImages(prev => ({ ...prev, [image.id]: image.thumbnail! }));
+
+            // Open the modal with the decrypted image
+            setSelectedImage(image);
+
+            toast.success('Image decrypted successfully!');
+        } catch (error) {
+            toast.error('Failed to decrypt image');
+            console.error('Decryption error:', error);
+        } finally {
+            setDecryptingImages(prev => ({ ...prev, [image.id]: false }));
+        }
+    };
 
     const handleImageLoad = (imageId: string) => {
         setImageLoadingStates(prev => ({ ...prev, [imageId]: false }));
@@ -208,7 +249,7 @@ export function VaultImageGallery({ vault, onUploadClick }: VaultImageGalleryPro
                 <div className="flex flex-col items-center justify-center py-12">
                     <LoadingSpinner size="lg" color="text-teal-400" />
                     <p className="mt-4 text-lg font-medium text-white">Loading vault images...</p>
-                    <p className="mt-2 text-sm text-gray-400">Decrypting and fetching from IPFS</p>
+                    <p className="mt-2 text-sm text-gray-400">Fetching encrypted files from IPFS</p>
                 </div>
             </motion.div>
         );
@@ -229,6 +270,11 @@ export function VaultImageGallery({ vault, onUploadClick }: VaultImageGalleryPro
                     </h2>
                     <p className="text-gray-400">
                         {filteredAndSortedImages.length} encrypted image{filteredAndSortedImages.length !== 1 ? 's' : ''}
+                        {Object.keys(decryptedImages).length > 0 && (
+                            <span className="ml-2 text-teal-400">
+                                • {Object.keys(decryptedImages).length} decrypted
+                            </span>
+                        )}
                     </p>
                 </div>
 
@@ -545,57 +591,160 @@ export function VaultImageGallery({ vault, onUploadClick }: VaultImageGalleryPro
                                 whileHover={{ scale: viewMode === 'grid' ? 1.02 : 1.01 }}
                                 className={`cursor-pointer bg-white/5 border border-white/10 rounded-xl overflow-hidden hover:bg-white/10 hover:border-white/20 transition-all duration-200 ${viewMode === 'list' ? 'flex items-center gap-4 p-4' : 'group'
                                     }`}
-                                onClick={() => setSelectedImage(image)}
+                                onClick={() => handleImageDecryption(image)}
                             >
                                 {viewMode === 'grid' ? (
                                     <>
                                         {/* Image Container */}
                                         <div className="relative overflow-hidden aspect-square">
-                                            {imageLoadingStates[image.id] && (
-                                                <div className="absolute inset-0 z-10 flex items-center justify-center bg-gray-800/50">
-                                                    <Loader2 className="w-6 h-6 text-teal-400 animate-spin" />
-                                                </div>
-                                            )}
-                                            <img
-                                                src={image.thumbnail ?? undefined}
-                                                alt={image.filename}
-                                                className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-110"
-                                                onLoadStart={() => handleImageLoadStart(image.id)}
-                                                onLoad={() => handleImageLoad(image.id)}
-                                                onError={() => handleImageLoad(image.id)}
-                                            />
+                                            {/* Show encrypted state or decrypted image */}
+                                            {!decryptedImages[image.id] ? (
+                                                /* Encrypted State with Beautiful Design */
+                                                <div className="relative flex flex-col items-center justify-center w-full h-full overflow-hidden border bg-gradient-to-br from-slate-800 via-purple-900/30 to-slate-800 border-purple-500/20">
+                                                    {/* Animated background pattern with theme colors */}
+                                                    <div className="absolute inset-0">
+                                                        {[...Array(15)].map((_, i) => (
+                                                            <motion.div
+                                                                key={i}
+                                                                className="absolute w-1 h-1 rounded-full bg-purple-400/20"
+                                                                animate={{
+                                                                    x: [0, Math.random() * 80 - 40],
+                                                                    y: [0, Math.random() * 80 - 40],
+                                                                    opacity: [0.2, 0.6, 0.2],
+                                                                    scale: [1, 1.5, 1],
+                                                                }}
+                                                                transition={{
+                                                                    duration: 4 + Math.random() * 2,
+                                                                    repeat: Infinity,
+                                                                    delay: i * 0.2,
+                                                                }}
+                                                                style={{
+                                                                    left: `${Math.random() * 100}%`,
+                                                                    top: `${Math.random() * 100}%`,
+                                                                }}
+                                                            />
+                                                        ))}
+                                                    </div>
 
-                                            {/* Overlay */}
-                                            <div className="absolute inset-0 transition-opacity duration-200 opacity-0 bg-gradient-to-t from-black/60 via-transparent to-transparent group-hover:opacity-100">
-                                                <div className="absolute bottom-3 left-3 right-3">
-                                                    <div className="flex items-center justify-between">
-                                                        <div className="flex items-center gap-2">
-                                                            <Lock className="w-4 h-4 text-teal-400" />
-                                                            <span className="text-sm font-medium text-white">Encrypted</span>
+                                                    {/* Gradient overlay for depth */}
+                                                    <div className="absolute inset-0 bg-gradient-to-br from-purple-600/10 via-transparent to-blue-600/10" />
+
+                                                    {decryptingImages[image.id] ? (
+                                                        /* Decrypting Animation with Theme Colors */
+                                                        <motion.div
+                                                            initial={{ opacity: 0 }}
+                                                            animate={{ opacity: 1 }}
+                                                            className="z-10 flex flex-col items-center"
+                                                        >
+                                                            <motion.div
+                                                                animate={{ rotate: 360 }}
+                                                                transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
+                                                                className="p-4 mb-4 border rounded-full bg-gradient-to-br from-teal-600/20 to-blue-600/20 border-teal-400/30"
+                                                            >
+                                                                <Unlock className="w-8 h-8 text-teal-400" />
+                                                            </motion.div>
+                                                            <p className="mb-2 text-sm font-medium text-teal-300">Decrypting...</p>
+                                                            <div className="w-20 h-1 overflow-hidden rounded-full bg-slate-700">
+                                                                <motion.div
+                                                                    className="h-full bg-gradient-to-r from-teal-500 to-blue-500"
+                                                                    animate={{ x: [-80, 80] }}
+                                                                    transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
+                                                                />
+                                                            </div>
+                                                            <p className="mt-2 text-xs text-purple-300 opacity-75">Unlocking your image...</p>
+                                                        </motion.div>
+                                                    ) : (
+                                                        /* Encrypted State with Beautiful Theme Design */
+                                                        <motion.div
+                                                            whileHover={{ scale: 1.05 }}
+                                                            className="z-10 flex flex-col items-center"
+                                                        >
+                                                            <motion.div
+                                                                animate={{
+                                                                    scale: [1, 1.1, 1],
+                                                                    opacity: [0.8, 1, 0.8]
+                                                                }}
+                                                                transition={{ duration: 3, repeat: Infinity }}
+                                                                className="p-4 mb-4 border rounded-full bg-gradient-to-br from-purple-600/20 to-blue-600/20 border-purple-400/30 backdrop-blur-sm"
+                                                            >
+                                                                <Lock className="w-8 h-8 text-purple-300" />
+                                                            </motion.div>
+                                                            <motion.p
+                                                                animate={{ opacity: [0.7, 1, 0.7] }}
+                                                                transition={{ duration: 2, repeat: Infinity }}
+                                                                className="mb-1 text-sm font-medium text-purple-200"
+                                                            >
+                                                                🔐 Encrypted
+                                                            </motion.p>
+                                                            <motion.p
+                                                                whileHover={{ scale: 1.05 }}
+                                                                className="px-3 py-1 text-xs text-teal-300 border rounded-full bg-teal-500/10 border-teal-500/20"
+                                                            >
+                                                                Click to decrypt
+                                                            </motion.p>
+
+                                                            {/* Subtle pulsing border effect */}
+                                                            <motion.div
+                                                                animate={{
+                                                                    opacity: [0.3, 0.6, 0.3],
+                                                                    scale: [1, 1.02, 1]
+                                                                }}
+                                                                transition={{ duration: 2, repeat: Infinity }}
+                                                                className="absolute inset-0 border-2 rounded-lg border-purple-400/20"
+                                                            />
+                                                        </motion.div>
+                                                    )}
+                                                </div>
+                                            ) : (
+                                                /* Decrypted Image */
+                                                <>
+                                                    {imageLoadingStates[image.id] && (
+                                                        <div className="absolute inset-0 z-10 flex items-center justify-center bg-slate-800/50">
+                                                            <Loader2 className="w-6 h-6 text-teal-400 animate-spin" />
                                                         </div>
-                                                        <div className="flex items-center gap-2">
-                                                            <button
-                                                                onClick={(e) => {
-                                                                    e.stopPropagation();
-                                                                    setSelectedImage(image);
-                                                                }}
-                                                                className="p-1.5 bg-white/20 hover:bg-white/30 rounded-lg transition-colors"
-                                                            >
-                                                                <Eye className="w-4 h-4 text-white" />
-                                                            </button>
-                                                            <button
-                                                                onClick={(e) => {
-                                                                    e.stopPropagation();
-                                                                    toast.success('Download started');
-                                                                }}
-                                                                className="p-1.5 bg-white/20 hover:bg-white/30 rounded-lg transition-colors"
-                                                            >
-                                                                <Download className="w-4 h-4 text-white" />
-                                                            </button>
+                                                    )}
+                                                    <img
+                                                        src={decryptedImages[image.id]}
+                                                        alt={image.filename}
+                                                        className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-110"
+                                                        onLoadStart={() => handleImageLoadStart(image.id)}
+                                                        onLoad={() => handleImageLoad(image.id)}
+                                                        onError={() => handleImageLoad(image.id)}
+                                                    />
+
+                                                    {/* Decrypted Overlay */}
+                                                    <div className="absolute inset-0 transition-opacity duration-200 opacity-0 bg-gradient-to-t from-black/60 via-transparent to-transparent group-hover:opacity-100">
+                                                        <div className="absolute bottom-3 left-3 right-3">
+                                                            <div className="flex items-center justify-between">
+                                                                <div className="flex items-center gap-2">
+                                                                    <Unlock className="w-4 h-4 text-green-400" />
+                                                                    <span className="text-sm font-medium text-white">Decrypted</span>
+                                                                </div>
+                                                                <div className="flex items-center gap-2">
+                                                                    <button
+                                                                        onClick={(e) => {
+                                                                            e.stopPropagation();
+                                                                            setSelectedImage(image);
+                                                                        }}
+                                                                        className="p-1.5 bg-white/20 hover:bg-white/30 rounded-lg transition-colors"
+                                                                    >
+                                                                        <Eye className="w-4 h-4 text-white" />
+                                                                    </button>
+                                                                    <button
+                                                                        onClick={(e) => {
+                                                                            e.stopPropagation();
+                                                                            toast.success('Download started');
+                                                                        }}
+                                                                        className="p-1.5 bg-white/20 hover:bg-white/30 rounded-lg transition-colors"
+                                                                    >
+                                                                        <Download className="w-4 h-4 text-white" />
+                                                                    </button>
+                                                                </div>
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                </div>
-                                            </div>
+                                                </>
+                                            )}
                                         </div>
 
                                         {/* Info */}
@@ -614,19 +763,47 @@ export function VaultImageGallery({ vault, onUploadClick }: VaultImageGalleryPro
                                     <>
                                         {/* List View */}
                                         <div className="relative flex-shrink-0 w-16 h-16 overflow-hidden rounded-lg">
-                                            {imageLoadingStates[image.id] && (
-                                                <div className="absolute inset-0 z-10 flex items-center justify-center bg-gray-800/50">
-                                                    <Loader2 className="w-4 h-4 text-teal-400 animate-spin" />
+                                            {!decryptedImages[image.id] ? (
+                                                /* Encrypted State in List View with Theme Colors */
+                                                <div className="flex items-center justify-center w-full h-full border bg-gradient-to-br from-slate-800 via-purple-900/30 to-slate-800 border-purple-500/20">
+                                                    {decryptingImages[image.id] ? (
+                                                        <motion.div
+                                                            animate={{ rotate: 360 }}
+                                                            transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
+                                                            className="p-2 rounded-full bg-teal-600/20"
+                                                        >
+                                                            <Unlock className="w-4 h-4 text-teal-400" />
+                                                        </motion.div>
+                                                    ) : (
+                                                        <motion.div
+                                                            animate={{
+                                                                scale: [1, 1.1, 1],
+                                                                opacity: [0.7, 1, 0.7]
+                                                            }}
+                                                            transition={{ duration: 2, repeat: Infinity }}
+                                                            className="p-2 rounded-full bg-purple-600/20"
+                                                        >
+                                                            <Lock className="w-4 h-4 text-purple-300" />
+                                                        </motion.div>
+                                                    )}
                                                 </div>
+                                            ) : (
+                                                <>
+                                                    {imageLoadingStates[image.id] && (
+                                                        <div className="absolute inset-0 z-10 flex items-center justify-center bg-slate-800/50">
+                                                            <Loader2 className="w-4 h-4 text-teal-400 animate-spin" />
+                                                        </div>
+                                                    )}
+                                                    <img
+                                                        src={decryptedImages[image.id]}
+                                                        alt={image.filename}
+                                                        className="object-cover w-full h-full"
+                                                        onLoadStart={() => handleImageLoadStart(image.id)}
+                                                        onLoad={() => handleImageLoad(image.id)}
+                                                        onError={() => handleImageLoad(image.id)}
+                                                    />
+                                                </>
                                             )}
-                                            <img
-                                                src={image.thumbnail ?? undefined}
-                                                alt={image.filename}
-                                                className="object-cover w-full h-full"
-                                                onLoadStart={() => handleImageLoadStart(image.id)}
-                                                onLoad={() => handleImageLoad(image.id)}
-                                                onError={() => handleImageLoad(image.id)}
-                                            />
                                         </div>
 
                                         <div className="flex-1 min-w-0">
@@ -638,8 +815,22 @@ export function VaultImageGallery({ vault, onUploadClick }: VaultImageGalleryPro
                                                     {formatDate(image.uploadedAt)}
                                                 </div>
                                                 <div className="flex items-center gap-1">
-                                                    <Lock className="w-3 h-3 text-teal-400" />
-                                                    Encrypted
+                                                    {decryptedImages[image.id] ? (
+                                                        <>
+                                                            <Unlock className="w-3 h-3 text-green-400" />
+                                                            <span className="text-green-400">Decrypted</span>
+                                                        </>
+                                                    ) : decryptingImages[image.id] ? (
+                                                        <>
+                                                            <Loader2 className="w-3 h-3 text-teal-400 animate-spin" />
+                                                            <span className="text-teal-400">Decrypting</span>
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <Lock className="w-3 h-3 text-purple-300" />
+                                                            <span className="text-purple-300">Encrypted</span>
+                                                        </>
+                                                    )}
                                                 </div>
                                             </div>
                                         </div>
@@ -648,9 +839,14 @@ export function VaultImageGallery({ vault, onUploadClick }: VaultImageGalleryPro
                                             <button
                                                 onClick={(e) => {
                                                     e.stopPropagation();
-                                                    setSelectedImage(image);
+                                                    if (decryptedImages[image.id]) {
+                                                        setSelectedImage(image);
+                                                    } else {
+                                                        handleImageDecryption(image);
+                                                    }
                                                 }}
                                                 className="p-2 transition-colors rounded-lg bg-white/10 hover:bg-white/20"
+                                                disabled={decryptingImages[image.id]}
                                             >
                                                 <Eye className="w-4 h-4 text-white" />
                                             </button>
@@ -660,6 +856,7 @@ export function VaultImageGallery({ vault, onUploadClick }: VaultImageGalleryPro
                                                     toast.success('Download started');
                                                 }}
                                                 className="p-2 transition-colors rounded-lg bg-white/10 hover:bg-white/20"
+                                                disabled={!decryptedImages[image.id]}
                                             >
                                                 <Download className="w-4 h-4 text-white" />
                                             </button>
@@ -678,6 +875,7 @@ export function VaultImageGallery({ vault, onUploadClick }: VaultImageGalleryPro
                     image={selectedImage}
                     isOpen={!!selectedImage}
                     onClose={() => setSelectedImage(null)}
+                    decryptedImageUrl={decryptedImages[selectedImage.id]}
                 />
             )}
         </motion.div>
