@@ -13,7 +13,16 @@ const imageSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Vault',
         required: true
-    }
+    },
+    mimeType: {
+        type: String,
+        required: true
+    },
+    ipfsHash: {
+        type: String,
+        required: true,
+        index: true
+    },
 
 }, { timestamps: true })
 

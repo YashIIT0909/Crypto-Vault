@@ -15,6 +15,7 @@
   "type": "commonjs",
   "dependencies": {
     "@metamask/eth-sig-util": "^8.2.0",
+    "axios": "^1.10.0",
     "buffer": "^6.0.3",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",

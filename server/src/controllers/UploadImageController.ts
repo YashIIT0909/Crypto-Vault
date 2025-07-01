@@ -28,18 +28,20 @@ export const UploadImageController = asyncHandler(async (req: Request, res: Resp
             return;
         }
 
-        const image = await Image.create({
-            imageName: originalName,
-            imageSize: originalSize,
-            vault: vault._id
-        })
-
         const pinata = new PinataSDK({
             pinataJwt: process.env.PINATA_JWT,
             pinataGateway: process.env.PINATA_GATEWAY,
         });
 
         const resPinata = await pinata.upload.public.json({ file });
+
+        const image = await Image.create({
+            imageName: originalName,
+            imageSize: originalSize,
+            vault: vault._id,
+            mimeType: file.mimetype,
+            ipfsHash: resPinata.cid,
+        })
 
         res.status(200).json({ message: "Image created successfully", image, resPinata })
 
