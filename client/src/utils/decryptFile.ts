@@ -1,4 +1,4 @@
-export async function decryptFileWithKey(blob: Blob, key: CryptoKey): Promise<Blob> {
+export async function decryptFileWithKey(blob: Blob, key: CryptoKey): Promise<ArrayBuffer> {
     const buffer = await blob.arrayBuffer();
     const data = new Uint8Array(buffer);
 
@@ -11,5 +11,5 @@ export async function decryptFileWithKey(blob: Blob, key: CryptoKey): Promise<Bl
         encryptedData
     );
 
-    return new Blob([decryptedBuffer]);
+    return decryptedBuffer;
 }

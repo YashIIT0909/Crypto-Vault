@@ -13,5 +13,5 @@ export async function encryptFileWithKey(file: File, key: CryptoKey): Promise<Bl
     combined.set(iv, 0);
     combined.set(new Uint8Array(encryptedBuffer), iv.byteLength);
 
-    return new Blob([combined], { type: "application/octet-stream" });
+    return new Blob([combined], { type: file.type });
 }

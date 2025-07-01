@@ -7,6 +7,9 @@ import { ImageViewerModal } from './ImageViewerModal';
 import toast from 'react-hot-toast';
 import { useWallet } from '../hooks/useWallet';
 import axios from 'axios';
+import { fetchEncryptedKey } from '../utils/fetchEncryptedKey';
+import { decryptSymmetricKey } from '../utils/decryptSymmetricKey';
+import { decryptFileWithKey } from '../utils/decryptFile';
 
 interface VaultImageGalleryProps {
     vault: Vault;
@@ -22,7 +25,7 @@ export function VaultImageGallery({ vault, onUploadClick }: VaultImageGalleryPro
     const [sortBy, setSortBy] = useState<'newest' | 'oldest' | 'name'>('newest');
     const [imageLoadingStates, setImageLoadingStates] = useState<Record<string, boolean>>({});
 
-    const { contract } = useWallet();
+    const { address, contract } = useWallet();
     // New state for tracking decrypted images and decryption process
     const [decryptedImages, setDecryptedImages] = useState<Record<string, string>>({});
     const [decryptingImages, setDecryptingImages] = useState<Record<string, boolean>>({});
@@ -179,10 +182,53 @@ export function VaultImageGallery({ vault, onUploadClick }: VaultImageGalleryPro
 
         try {
             // Simulate decryption process
-            await new Promise(resolve => setTimeout(resolve, 2500));
+            const encryptedKey = await fetchEncryptedKey(); // Assume this function fetches the key
+            if (!encryptedKey) {
+                throw new Error('Failed to fetch encryption key');
+            }
+            console.log('Fetched encrypted key:', encryptedKey);
+
+            if (!address) {
+                throw new Error('Wallet address is not available');
+            }
+
+
+            const symmetricKey = await decryptSymmetricKey(encryptedKey, address.toLowerCase()); // Decrypt the key
+            if (!symmetricKey) {
+                throw new Error('Failed to decrypt symmetric key');
+            }
+            console.log('Decrypted symmetric key:', symmetricKey);
+
+            const imageData = await axios.get(`http://localhost:8000/api/images/${image.ipfsHash}`, {
+                responseType: 'blob',
+                withCredentials: true
+            });
+
+            if (!imageData || !imageData.data) {
+                throw new Error('Failed to fetch image data');
+            }
+            console.log(imageData.data instanceof Blob); // should be true
+
+            console.log('Fetched image data:', imageData.data);
+
+
+            // Decrypt the image data using the symmetric key
+            const decryptedBuffer = await decryptFileWithKey(imageData.data, symmetricKey);
+            console.log('Decrypted image buffer:', decryptedBuffer);
+
+            const blob = new Blob([decryptedBuffer], { type: image.mimeType || 'image/jpeg' || 'image/png' });
+            console.log('Decrypted image blob:', blob);
+
+            // Create a URL for the decrypted image
+            const decryptedImageUrl = URL.createObjectURL(blob);
+            console.log('Decrypted image URL:', decryptedImageUrl);
+
+
+            // Simulate decryption of the image data
+
 
             // Store the decrypted image URL (in real app, this would be the actual decrypted image)
-            setDecryptedImages(prev => ({ ...prev, [image.id]: image.thumbnail! }));
+            setDecryptedImages(prev => ({ ...prev, [image.id]: decryptedImageUrl }));
 
             // Open the modal with the decrypted image
             setSelectedImage(image);
