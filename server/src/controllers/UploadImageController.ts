@@ -4,8 +4,6 @@ import Vault from "../models/Vault.models";
 import Image from "../models/Image.models";
 import { asyncHandler } from "../utils/asyncHandler";
 import { PinataSDK } from "pinata";
-import fs from "fs";
-import { Readable } from "stream";
 
 export const UploadImageController = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -46,6 +44,12 @@ export const UploadImageController = asyncHandler(async (req: Request, res: Resp
             mimeType: file.mimetype,
             ipfsHash: resPinata.cid,
         })
+        if (!image) {
+            res.status(500).json({ error: "Failed to create image record" });
+            return;
+        }
+        vault.imageCount += 1;
+        await vault.save();
 
         res.status(200).json({ message: "Image created successfully", image, resPinata })
 
