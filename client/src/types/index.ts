@@ -7,6 +7,8 @@ export interface Vault {
     createdAt: Date;
     imageCount: number;
     isPublic: boolean;
+    allowedUsersCount: number;
+    allowedGroupsCount: number;
 }
 
 export interface VaultImage {

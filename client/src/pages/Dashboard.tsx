@@ -6,30 +6,30 @@ import { VaultImageGallery } from '../components/VaultImageGallery';
 import { CreateVaultModal } from '../components/CreateVaultModal';
 import { ImageUploadModal } from '../components/ImageUploadModal';
 // import { AccessControlModal } from './AccessControlModal';
-// import { WalletDisconnectedModal } from './WalletDisconnectedModal';
+import { WalletDisconnectedModal } from '../components/WalletDisconnectModal';
 import { useWallet } from '../hooks/useWallet';
 import type { Vault } from '../types';
 import toast from 'react-hot-toast';
 
 export const Dashboard = () => {
-    // const { address, isConnected, connectWallet } = useWallet();
-    const { address, isConnected } = useWallet();
+    const { address, isConnected, connectWallet } = useWallet();
     const [selectedVault, setSelectedVault] = useState<Vault | null>(null);
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [showUploadModal, setShowUploadModal] = useState(false);
     // const [showAccessModal, setShowAccessModal] = useState(false);
-    // const [showDisconnectedModal, setShowDisconnectedModal] = useState(false);
+    const [showDisconnectedModal, setShowDisconnectedModal] = useState(false);
     const [wasConnected, setWasConnected] = useState(false);
     const [refreshVaults, setRefreshVaults] = useState(false);
+    const [refreshImages, setRefreshImages] = useState(false);
 
     // Track connection state changes
     useEffect(() => {
         if (isConnected) {
             setWasConnected(true);
-            // setShowDisconnectedModal(false);
+            setShowDisconnectedModal(false);
         } else if (wasConnected && !isConnected) {
             // Wallet was connected but now disconnected
-            // setShowDisconnectedModal(true);
+            setShowDisconnectedModal(true);
             setSelectedVault(null); // Clear selected vault
         }
     }, [isConnected, wasConnected]);
@@ -78,23 +78,23 @@ export const Dashboard = () => {
         }
     };
 
-    // const handleReconnect = async () => {
-    //     try {
-    //         await connectWallet();
-    //     } catch (error) {
-    //         toast.error('Failed to reconnect wallet');
-    //     }
-    // };
+    const handleReconnect = async () => {
+        try {
+            await connectWallet();
+        } catch (error) {
+            toast.error('Failed to reconnect wallet');
+        }
+    };
 
     // Don't render dashboard if not connected
-    // if (!isConnected) {
-    //     return (
-    //         <WalletDisconnectedModal
-    //             isOpen={showDisconnectedModal}
-    //             onReconnect={handleReconnect}
-    //         />
-    //     );
-    // }
+    if (!isConnected) {
+        return (
+            <WalletDisconnectedModal
+                isOpen={showDisconnectedModal}
+                onReconnect={handleReconnect}
+            />
+        );
+    }
     const handleCreateVault = () => {
         setShowCreateModal(true);
     };
@@ -238,6 +238,8 @@ export const Dashboard = () => {
                         <VaultImageGallery
                             vault={selectedVault}
                             onUploadClick={handleUploadImage}
+                            refreshTrigger={refreshImages}
+                            refreshVault={refreshVaults}
                         />
                     )}
                 </div>
@@ -255,6 +257,8 @@ export const Dashboard = () => {
                         isOpen={showUploadModal}
                         onClose={() => setShowUploadModal(false)}
                         vault={selectedVault}
+                        onImageUploaded={() => setRefreshImages(prev => !prev)}
+                        onVaultCreated={() => setRefreshVaults(prev => !prev)}
                     />
                 )}
                 {/* {showAccessModal && selectedVault && (
@@ -266,10 +270,10 @@ export const Dashboard = () => {
                 )} */}
 
                 {/* Wallet Disconnected Modal */}
-                {/* <WalletDisconnectedModal
+                <WalletDisconnectedModal
                     isOpen={showDisconnectedModal}
                     onReconnect={handleReconnect}
-                /> */}
+                />
             </div>
         </div>
     );

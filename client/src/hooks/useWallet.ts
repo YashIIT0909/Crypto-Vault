@@ -110,7 +110,7 @@ export function useWallet() {
                         setWallet(prev => ({
                             ...prev,
                             address: accounts[0].address,
-                            isConnected: false,
+                            isConnected: true,
                         }));
                     }
                 } catch (error) {

@@ -14,9 +14,11 @@ import { decryptFileWithKey } from '../utils/decryptFile';
 interface VaultImageGalleryProps {
     vault: Vault;
     onUploadClick?: () => void;
+    refreshTrigger?: boolean;
+    refreshVault?: boolean; // Optional prop to trigger vault refresh
 }
 
-export function VaultImageGallery({ vault, onUploadClick }: VaultImageGalleryProps) {
+export function VaultImageGallery({ vault, onUploadClick, refreshTrigger, refreshVault }: VaultImageGalleryProps) {
     const [images, setImages] = useState<VaultImage[]>([]);
     const [loading, setLoading] = useState(true);
     const [selectedImage, setSelectedImage] = useState<VaultImage | null>(null);
@@ -81,78 +83,6 @@ export function VaultImageGallery({ vault, onUploadClick }: VaultImageGalleryPro
 
                 setImages(enrichedImages);
 
-
-
-                // const mockImages: VaultImage[] = [
-                //   {
-                //     id: '1',
-                //     vaultId: vault.id,
-                //     ipfsHash: 'QmYjtig7VJQ6XsnUjqqJvj7QaMcCAwtrgNdahSiFofrE7o',
-                //     filename: 'sunset-beach.jpg',
-                //     uploadedAt: new Date('2024-01-15T10:30:00'),
-                //     encryptedKey: 'encrypted-key-1',
-                //     thumbnail: 'https://images.pexels.com/photos/1118873/pexels-photo-1118873.jpeg?auto=compress&cs=tinysrgb&w=400',
-                //     size: 2048576,
-                //     mimeType: 'image/jpeg'
-                //   },
-                //   {
-                //     id: '2',
-                //     vaultId: vault.id,
-                //     ipfsHash: 'QmPChd2hVbrJ6bfo3WBcTW4iZnpHm8TEzWkLHmLpXhF88W',
-                //     filename: 'mountain-landscape.png',
-                //     uploadedAt: new Date('2024-01-20T14:15:00'),
-                //     encryptedKey: 'encrypted-key-2',
-                //     thumbnail: 'https://images.pexels.com/photos/1366919/pexels-photo-1366919.jpeg?auto=compress&cs=tinysrgb&w=400',
-                //     size: 3145728,
-                //     mimeType: 'image/png'
-                //   },
-                //   {
-                //     id: '3',
-                //     vaultId: vault.id,
-                //     ipfsHash: 'QmNLei78zWmzUdbeRB3CiUfAizWUrbeeZh5K1rhAQKCh51',
-                //     filename: 'city-night.jpg',
-                //     uploadedAt: new Date('2024-02-01T20:45:00'),
-                //     encryptedKey: 'encrypted-key-3',
-                //     thumbnail: 'https://images.pexels.com/photos/1519088/pexels-photo-1519088.jpeg?auto=compress&cs=tinysrgb&w=400',
-                //     size: 1572864,
-                //     mimeType: 'image/jpeg'
-                //   },
-                //   {
-                //     id: '4',
-                //     vaultId: vault.id,
-                //     ipfsHash: 'QmRAQB6YaCyidP37UdDnjFY5vQuiBrcqdyoW1CuDgwxkD4',
-                //     filename: 'forest-path.jpg',
-                //     uploadedAt: new Date('2024-02-05T09:20:00'),
-                //     encryptedKey: 'encrypted-key-4',
-                //     thumbnail: 'https://images.pexels.com/photos/1496373/pexels-photo-1496373.jpeg?auto=compress&cs=tinysrgb&w=400',
-                //     size: 2621440,
-                //     mimeType: 'image/jpeg'
-                //   },
-                //   {
-                //     id: '5',
-                //     vaultId: vault.id,
-                //     ipfsHash: 'QmYwAPJzv5CZsnA625s3Xf2nemtYgPpHdWEz79ojWnPbdG',
-                //     filename: 'ocean-waves.jpg',
-                //     uploadedAt: new Date('2024-02-10T16:30:00'),
-                //     encryptedKey: 'encrypted-key-5',
-                //     thumbnail: 'https://images.pexels.com/photos/1001682/pexels-photo-1001682.jpeg?auto=compress&cs=tinysrgb&w=400',
-                //     size: 1835008,
-                //     mimeType: 'image/jpeg'
-                //   },
-                //   {
-                //     id: '6',
-                //     vaultId: vault.id,
-                //     ipfsHash: 'QmPpBoPqwxkrp3s9FwnHtD6RQ45Y7yo1AuTRdRGulcqxGK',
-                //     filename: 'desert-dunes.png',
-                //     uploadedAt: new Date('2024-02-12T11:45:00'),
-                //     encryptedKey: 'encrypted-key-6',
-                //     thumbnail: 'https://images.pexels.com/photos/1770809/pexels-photo-1770809.jpeg?auto=compress&cs=tinysrgb&w=400',
-                //     size: 4194304,
-                //     mimeType: 'image/png'
-                //   }
-                // ];
-
-                // setImages(mockImages);
             } catch (error) {
                 toast.error('Failed to load images');
                 console.error('Error loading images:', error);
@@ -162,7 +92,7 @@ export function VaultImageGallery({ vault, onUploadClick }: VaultImageGalleryPro
         };
 
         fetchImages();
-    }, [vault.id]);
+    }, [vault.id, refreshTrigger, refreshVault]);
 
     // Function to handle image decryption
     const handleImageDecryption = async (image: VaultImage) => {
@@ -316,9 +246,9 @@ export function VaultImageGallery({ vault, onUploadClick }: VaultImageGalleryPro
                     </h2>
                     <p className="text-gray-400">
                         {filteredAndSortedImages.length} encrypted image{filteredAndSortedImages.length !== 1 ? 's' : ''}
-                        {Object.keys(decryptedImages).length > 0 && (
+                        {filteredAndSortedImages.filter(img => decryptedImages[img.id]).length > 0 && (
                             <span className="ml-2 text-teal-400">
-                                • {Object.keys(decryptedImages).length} decrypted
+                                • {filteredAndSortedImages.filter(img => decryptedImages[img.id]).length} decrypted
                             </span>
                         )}
                     </p>

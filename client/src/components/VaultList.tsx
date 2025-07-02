@@ -36,6 +36,7 @@ export function VaultList({ selectedVault, onSelectVault, onCreateVault, refresh
                     ...v,
                     id: v.vaultId,
                     name: v.vaultName, // Add this alias
+                    allowedUsersCount: v.allowedUsers?.length || 0,
                 }));
                 setVaults(fetchedVaults);
             } catch (error) {
@@ -365,7 +366,7 @@ export function VaultList({ selectedVault, onSelectVault, onCreateVault, refresh
                                         </div>
                                         <div className="flex items-center gap-2 text-sm text-gray-400">
                                             <Users className="w-4 h-4" />
-                                            <span>{Math.floor(Math.random() * 10) + 1} users</span>
+                                            <span>{vault.allowedUsersCount + 1} users</span>
                                         </div>
                                     </div>
                                     {selectedVault?.id === vault.id && (

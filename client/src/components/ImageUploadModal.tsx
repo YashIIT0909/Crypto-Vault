@@ -14,13 +14,17 @@ interface ImageUploadModalProps {
     isOpen: boolean;
     onClose: () => void;
     vault: Vault;
+    onImageUploaded: () => void; // Optional callback for when an image is uploaded
+    onVaultCreated: () => void; // Optional callback for when a vault is created
 }
 
-export function ImageUploadModal({ isOpen, onClose, vault }: ImageUploadModalProps) {
+export function ImageUploadModal({ isOpen, onClose, vault, onImageUploaded, onVaultCreated }: ImageUploadModalProps) {
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [uploading, setUploading] = useState(false);
     const [progress, setProgress] = useState<UploadProgress | null>(null);
     const [dragOver, setDragOver] = useState(false);
+
+
 
     const { address, contract } = useWallet();
 
@@ -169,6 +173,8 @@ export function ImageUploadModal({ isOpen, onClose, vault }: ImageUploadModalPro
                 message: 'Image uploaded successfully!',
             });
 
+            onImageUploaded(); // Trigger refresh of images in gallery
+            onVaultCreated(); // Trigger refresh of vaults if needed
             toast.success('Image uploaded successfully!');
 
             setTimeout(() => {
