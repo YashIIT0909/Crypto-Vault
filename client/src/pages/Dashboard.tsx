@@ -5,7 +5,7 @@ import { VaultList } from '../components/VaultList';
 import { VaultImageGallery } from '../components/VaultImageGallery';
 import { CreateVaultModal } from '../components/CreateVaultModal';
 import { ImageUploadModal } from '../components/ImageUploadModal';
-// import { AccessControlModal } from './AccessControlModal';
+import { AccessControlModal } from '../components/AccessControlModal';
 import { WalletDisconnectedModal } from '../components/WalletDisconnectModal';
 import { useWallet } from '../hooks/useWallet';
 import type { Vault } from '../types';
@@ -16,7 +16,7 @@ export const Dashboard = () => {
     const [selectedVault, setSelectedVault] = useState<Vault | null>(null);
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [showUploadModal, setShowUploadModal] = useState(false);
-    // const [showAccessModal, setShowAccessModal] = useState(false);
+    const [showAccessModal, setShowAccessModal] = useState(false);
     const [showDisconnectedModal, setShowDisconnectedModal] = useState(false);
     const [wasConnected, setWasConnected] = useState(false);
     const [refreshVaults, setRefreshVaults] = useState(false);
@@ -212,13 +212,13 @@ export const Dashboard = () => {
                                 <Image className="w-5 h-5" />
                                 Upload Image
                             </button>
-                            {/* <button
+                            <button
                                 onClick={() => setShowAccessModal(true)}
                                 className="flex items-center gap-2 px-6 py-3 font-medium text-white transition-all duration-200 shadow-lg bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 rounded-xl hover:shadow-orange-500/25"
                             >
                                 <Users className="w-5 h-5" />
                                 Manage Access
-                            </button> */}
+                            </button>
                         </>
                     )}
                 </motion.div>
@@ -261,13 +261,13 @@ export const Dashboard = () => {
                         onVaultCreated={() => setRefreshVaults(prev => !prev)}
                     />
                 )}
-                {/* {showAccessModal && selectedVault && (
+                {showAccessModal && selectedVault && (
                     <AccessControlModal
                         isOpen={showAccessModal}
                         onClose={() => setShowAccessModal(false)}
                         vault={selectedVault}
                     />
-                )} */}
+                )}
 
                 {/* Wallet Disconnected Modal */}
                 <WalletDisconnectedModal

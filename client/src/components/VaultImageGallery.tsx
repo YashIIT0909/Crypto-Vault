@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Image, Download, Eye, Calendar, Lock, Loader2, AlertCircle, Search, Filter, Grid, List, Upload, Sparkles, Shield, Plus, Database, Key, Unlock } from 'lucide-react';
 import type { Vault, VaultImage } from '../types';
