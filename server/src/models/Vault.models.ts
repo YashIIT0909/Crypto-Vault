@@ -24,10 +24,12 @@ const vaultSchema = new mongoose.Schema({
         default: 0
     },
     allowedUsers: [{
-        type: String,
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
     }],
     allowedGroups: [{
-        type: String,
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Group'
     }]
 }, { timestamps: true })
 

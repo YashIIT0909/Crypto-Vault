@@ -40,13 +40,10 @@ export const AuthController = asyncHandler(async (req: Request, res: Response, n
             { expiresIn: '2h' }
         );
 
-        console.log("Generated Token:", token);
-
         const options = {
             httpOnly: true,
             secure: true
         }
-
 
         res.status(200)
             .cookie("token", token, options)

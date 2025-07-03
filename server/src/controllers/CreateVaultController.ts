@@ -51,7 +51,12 @@ export const GetVaultController = asyncHandler(async (req: Request, res: Respons
             return;
         }
 
-        const vaults = await Vault.find({ owner: user._id });
+        const vaults = await Vault.find({
+            $or: [
+                { owner: user._id },
+                { allowedUsers: user._id }
+            ]
+        });
 
         if (!vaults || vaults.length === 0) {
             res.status(404).json({ error: "No vaults found for this user" });
