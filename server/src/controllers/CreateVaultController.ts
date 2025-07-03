@@ -69,3 +69,31 @@ export const GetVaultController = asyncHandler(async (req: Request, res: Respons
         res.status(500).json({ error: "Failed to fetch vaults" });
     }
 });
+
+export const GetVaultOwnerController = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { vaultId } = req.params;
+
+        if (!vaultId) {
+            res.status(400).json({ error: "Vault ID is required" });
+            return;
+        }
+
+        const vault = await Vault.findOne({ vaultId });
+        if (!vault) {
+            res.status(404).json({ error: "Vault not found" });
+            return;
+        }
+
+        const owner = await User.findById(vault.owner);
+        if (!owner) {
+            res.status(404).json({ error: "Owner not found" });
+            return;
+        }
+
+        res.status(200).json({ owner: owner.userAddress });
+    } catch (error) {
+        console.error("Error fetching vault owner:", error);
+        res.status(500).json({ error: "Failed to fetch vault owner" });
+    }
+});

@@ -3,6 +3,6 @@ import { GetEncryptedKeyController } from '../controllers/GetEncryptedKeyControl
 import { authMiddleware } from '../middlewares/authMiddleware';
 const router = express.Router();
 
-router.get('/getkey', authMiddleware, GetEncryptedKeyController)
+router.get('/getkey/:userAddress/:vaultId', authMiddleware, GetEncryptedKeyController)
 
 export default router;
