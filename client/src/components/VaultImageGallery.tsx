@@ -112,7 +112,10 @@ export function VaultImageGallery({ vault, onUploadClick, refreshTrigger, refres
 
         try {
             // Simulate decryption process
-            const encryptedKey = await fetchEncryptedKey(); // Assume this function fetches the key
+            const vaultOwner = await axios.get(`http://localhost:8000/api/getVaultOwner/${vault.id}`);
+            const ownerAddress = vaultOwner.data.owner.toLowerCase();
+            console.log(ownerAddress);
+            const encryptedKey = await fetchEncryptedKey(ownerAddress, vault.id); // Assume this function fetches the key
             if (!encryptedKey) {
                 throw new Error('Failed to fetch encryption key');
             }
@@ -123,7 +126,7 @@ export function VaultImageGallery({ vault, onUploadClick, refreshTrigger, refres
             }
 
 
-            const symmetricKey = await decryptSymmetricKey(encryptedKey, address.toLowerCase()); // Decrypt the key
+            const symmetricKey = await decryptSymmetricKey(encryptedKey, ownerAddress.toLowerCase()); // Decrypt the key
             if (!symmetricKey) {
                 throw new Error('Failed to decrypt symmetric key');
             }

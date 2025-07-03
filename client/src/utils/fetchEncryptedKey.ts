@@ -1,7 +1,7 @@
 import axios from "axios"
-export async function fetchEncryptedKey(): Promise<string> {
+export async function fetchEncryptedKey(address: string, vaultId: string): Promise<string> {
     try {
-        const res = await axios.get("http://localhost:8000/api/getkey", { withCredentials: true });
+        const res = await axios.get(`http://localhost:8000/api/getkey/${address}/${vaultId}`, { withCredentials: true });
         return res.data.encryptedKey;
 
     } catch (error) {

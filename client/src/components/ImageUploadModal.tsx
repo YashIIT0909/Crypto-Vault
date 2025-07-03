@@ -89,7 +89,11 @@ export function ImageUploadModal({ isOpen, onClose, vault, onImageUploaded, onVa
                 message: `Fetching encryption key...`,
             });
 
-            const encryptedKey = await fetchEncryptedKey(); // Assume this function fetches the key
+            if (!address) {
+                throw new Error('Wallet address is not available');
+            }
+
+            const encryptedKey = await fetchEncryptedKey(address, vault.id); // Assume this function fetches the key
             if (!encryptedKey) {
                 throw new Error('Failed to fetch encryption key');
             }
