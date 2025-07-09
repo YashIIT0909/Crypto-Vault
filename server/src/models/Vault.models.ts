@@ -24,8 +24,15 @@ const vaultSchema = new mongoose.Schema({
         default: 0
     },
     allowedUsers: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User'
+        user: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User',
+            required: true
+        },
+        expiresAt: {
+            type: Date,
+            default: null
+        }
     }],
     allowedGroups: [{
         type: mongoose.Schema.Types.ObjectId,

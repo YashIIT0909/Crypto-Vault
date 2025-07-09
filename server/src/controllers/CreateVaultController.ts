@@ -45,25 +45,37 @@ export const GetVaultController = asyncHandler(async (req: Request, res: Respons
             return;
         }
 
-        const user = await User.findOne({ userAddress: address.toLowerCase() });
-        if (!user) {
-            res.status(404).json({ error: "User not found" });
-            return;
-        }
+        const userWithVaults = await User.aggregate([
+            { $match: { userAddress: address.toLowerCase() } },
+            {
+                $lookup: {
+                    from: "vaults",
+                    let: { userId: "$_id" },
+                    pipeline: [
+                        {
+                            $match: {
+                                $expr: {
+                                    $or: [
+                                        { $eq: ["$owner", "$$userId"] },
+                                        { $in: ["$$userId", "$allowedUsers"] }
+                                    ]
+                                }
+                            }
+                        }
+                    ],
+                    as: "vaults"
+                }
+            }
+        ]);
 
-        const vaults = await Vault.find({
-            $or: [
-                { owner: user._id },
-                { allowedUsers: user._id }
-            ]
-        });
-
-        if (!vaults || vaults.length === 0) {
+        if (!userWithVaults || userWithVaults.length === 0) {
             res.status(404).json({ error: "No vaults found for this user" });
             return
         }
 
-        res.status(200).json({ vaults });
+        console.log("userWithVaults:", userWithVaults[0]?.vaults);
+
+        res.status(200).json({ vaults: userWithVaults[0].vaults || [] });
     } catch (error) {
         console.error("Error fetching vaults:", error);
         res.status(500).json({ error: "Failed to fetch vaults" });
