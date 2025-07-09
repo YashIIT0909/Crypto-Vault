@@ -47,24 +47,24 @@ export const GetEncryptedKeyController = asyncHandler(async (req: Request, res: 
             res.status(404).json({ error: 'Vault not found' });
             return;
         }
-        // Check if the user is allowed to access the vault
-        if (!vault.allowedUsers || vault.allowedUsers.length === 0) {
-            res.status(403).json({
-                error: 'No users have access to this vault'
-            });
-            return;
-        }
-        // Check if the user is in the allowedUsers array
-        const isUserAllowed = vault.allowedUsers.some((userId) => userId.toString() === allowedUser._id.toString());
-        if (!isUserAllowed) {
-            res.status(403).json({ error: 'User does not have access to this vault' });
-            return;
-        }
+
 
         // check if the user is the owner
         const isOwner = vault.owner.toString() === allowedUser._id.toString();
         if (isOwner) {
             res.status(200).json({ encryptedKey: allowedUser.encryptedKey });
+            return;
+        }
+
+        // check if the user has access to the vault
+        const allowedEntry = vault.allowedUsers.find(
+            (entry) =>
+                entry.user.toString() === allowedUser._id.toString() &&
+                (!entry.expiresAt || entry.expiresAt > new Date())
+        );
+
+        if (!allowedEntry) {
+            res.status(403).json({ error: 'User does not have access to this vault' });
             return;
         }
 
