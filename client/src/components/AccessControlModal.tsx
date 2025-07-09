@@ -20,7 +20,7 @@ export function AccessControlModal({ isOpen, onClose, vault }: AccessControlModa
     const [groupMembers, setGroupMembers] = useState<string[]>(['']);
     const [expirationDate, setExpirationDate] = useState('');
     const [loading, setLoading] = useState(false);
-    const { contract } = useWallet();
+    const { contract, address } = useWallet();
 
     // Mock data with state management
     const [userAccess, setUserAccess] = useState<UserAccess[]>([]);
@@ -49,11 +49,14 @@ export function AccessControlModal({ isOpen, onClose, vault }: AccessControlModa
     const fetchUsers = async () => {
         const res = await axios.get(`http://localhost:8000/api/vault/${vault.id}/users`)
 
-        const users: UserAccess[] = res.data.allowedUsers.map((user: any) => ({
-            userAddress: user.userAddress,
-            grantedAt: new Date(),
-            expiresAt: user.expiresAt ? new Date(user.expiresAt) : undefined,
-        }));
+        const users: UserAccess[] = res.data.allowedUsers.filter((entry: any) =>
+            !entry.expiresAt || new Date(entry.expiresAt) > new Date() // Filter out expired users
+        )
+            .map((entry: any) => ({
+                userAddress: entry.user.userAddress,
+                grantedAt: new Date(), // Replace with real grantedAt if available
+                expiresAt: entry.expiresAt ? new Date(entry.expiresAt) : undefined,
+            }));
 
         setUserAccess(users);
 
@@ -62,6 +65,11 @@ export function AccessControlModal({ isOpen, onClose, vault }: AccessControlModa
     const handleGrantUserAccess = async () => {
         if (!newUserAddress.trim()) {
             toast.error('Please enter a valid address');
+            return;
+        }
+
+        if (newUserAddress.toLowerCase() === address?.toLowerCase()) {
+            toast.error('You cannot grant access to your own address');
             return;
         }
 
@@ -177,8 +185,26 @@ export function AccessControlModal({ isOpen, onClose, vault }: AccessControlModa
     const handleRevokeUserAccess = async (userAddress: string) => {
         setLoading(true);
         try {
-            // Simulate API call
-            await new Promise(resolve => setTimeout(resolve, 800));
+
+            const res = await axios.post('http://localhost:8000/api/revoke-user-access', {
+                vaultId: vault.id,
+                userAddress,
+            });
+
+            if (res.status !== 200) {
+                throw new Error('Failed to revoke access');
+            }
+
+            // call the contract to revoke access
+            if (!contract) {
+                toast.error('Contract not initialized. Please connect your wallet.');
+                setLoading(false);
+                return;
+            }
+
+            const tx = await contract.revokeAccess(vault.id, userAddress);
+            await tx.wait();
+
 
             setUserAccess(prev => prev.filter(user => user.userAddress !== userAddress));
             toast.success('User access revoked successfully');
