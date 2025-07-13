@@ -1,6 +1,6 @@
 import { Toaster } from 'react-hot-toast';
 import { motion } from 'framer-motion';
-import { Shield, Lock, Globe, ArrowDown, Database, Key, Users, FileImage, CheckCircle, Star } from 'lucide-react';
+import { Shield, Lock, ArrowDown, Database, Key, FileImage, CheckCircle, Star } from 'lucide-react';
 import { WalletConnection } from '../components/WalletConnection';
 import { useWallet } from '../hooks/useWallet';
 import { useNavigate } from 'react-router-dom';

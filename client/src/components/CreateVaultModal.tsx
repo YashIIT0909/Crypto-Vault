@@ -75,6 +75,10 @@ export function CreateVaultModal({ isOpen, onClose, onVaultCreated }: CreateVaul
 
             // console.log('Vault created response:', res.data);
 
+            if (!res.data.success) {
+                throw new Error('Failed to create vault on server');
+            }
+
 
             toast.success('Vault created successfully!');
             onVaultCreated();

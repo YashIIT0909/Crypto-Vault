@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Users, User, Calendar, Trash2, Plus, UserPlus } from 'lucide-react';
-import type { Vault, GroupAccess, UserAccess } from '../types';
+import { X, Users, User, Calendar, Trash2, Plus, } from 'lucide-react';
+import type { Vault, UserAccess } from '../types';
 import { LoadingSpinner } from './LoadingSpinner';
 import toast from 'react-hot-toast';
 import axios from 'axios';
@@ -14,7 +14,7 @@ interface AccessControlModalProps {
 }
 
 export function AccessControlModal({ isOpen, onClose, vault }: AccessControlModalProps) {
-    const [activeTab, setActiveTab] = useState<'users' | 'groups'>('users');
+    // const [activeTab, setActiveTab] = useState<'users' | 'groups'>('users');
     const [newUserAddress, setNewUserAddress] = useState('');
     // const [newGroupName, setNewGroupName] = useState('');
     // const [groupMembers, setGroupMembers] = useState<string[]>(['']);
