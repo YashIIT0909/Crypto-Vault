@@ -2,16 +2,16 @@ import dotenv from 'dotenv';
 dotenv.config();
 import express from "express";
 import cors from "cors";
-import connectDB from "./db/connect";
+import connectDB from "./src/db/connect";
 import cookieParser from "cookie-parser";
 
-import vaultRoute from "./routes/Vault.routes";
-import authenticationRoute from "./routes/Authentication.routes";
-import storekeyRoute from "./routes/storekey.routes";
-import getkeyRoute from "./routes/GetKey.routes";
-import uploadimageRoute from "./routes/UploadImage.routes";
-import getimageRoute from "./routes/GetImage.routes";
-import userAccessRoute from "./routes/UserAccess.routes";
+import vaultRoute from "./src/routes/Vault.routes";
+import authenticationRoute from "./src/routes/Authentication.routes";
+import storekeyRoute from "./src/routes/storekey.routes";
+import getkeyRoute from "./src/routes/GetKey.routes";
+import uploadimageRoute from "./src/routes/UploadImage.routes";
+import getimageRoute from "./src/routes/GetImage.routes";
+import userAccessRoute from "./src/routes/UserAccess.routes";
 
 
 const app = express();
