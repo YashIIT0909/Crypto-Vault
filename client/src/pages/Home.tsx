@@ -167,13 +167,13 @@ const Home = () => {
                             color: 'from-orange-500 to-orange-600',
                             features: ['Multi-user Keys', 'Key Rotation', 'Secure Recovery']
                         },
-                        {
-                            icon: Users,
-                            title: 'Group Management',
-                            description: 'Create groups and manage access for multiple users simultaneously with flexible permission settings.',
-                            color: 'from-pink-500 to-pink-600',
-                            features: ['Team Collaboration', 'Role-based Access', 'Bulk Permissions']
-                        },
+                        // {
+                        //     icon: Users,
+                        //     title: 'Group Management',
+                        //     description: 'Create groups and manage access for multiple users simultaneously with flexible permission settings.',
+                        //     color: 'from-pink-500 to-pink-600',
+                        //     features: ['Team Collaboration', 'Role-based Access', 'Bulk Permissions']
+                        // },
                         {
                             icon: FileImage,
                             title: 'Rich Media Support',
@@ -267,7 +267,7 @@ const Home = () => {
                 </motion.div>
 
                 {/* Stats Section */}
-                <motion.div
+                {/* <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 1.0 }}
@@ -293,7 +293,7 @@ const Home = () => {
                             <div className="text-sm text-gray-400">{stat.label}</div>
                         </motion.div>
                     ))}
-                </motion.div>
+                </motion.div> */}
 
                 {/* CTA Section */}
                 <motion.div

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Wallet, AlertTriangle, Clock } from 'lucide-react';
 
@@ -9,6 +10,7 @@ interface WalletDisconnectedModalProps {
 
 export function WalletDisconnectedModal({ isOpen, onReconnect }: WalletDisconnectedModalProps) {
     const [timeLeft, setTimeLeft] = useState(10);
+    const navigate = useNavigate();
 
     useEffect(() => {
         if (isOpen) {
@@ -26,6 +28,12 @@ export function WalletDisconnectedModal({ isOpen, onReconnect }: WalletDisconnec
             return () => clearInterval(timer);
         }
     }, [isOpen]);
+
+    useEffect(() => {
+        if (timeLeft === 0) {
+            navigate('/');
+        }
+    }, [timeLeft, navigate]);
 
     return (
         <AnimatePresence>

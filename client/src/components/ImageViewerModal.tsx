@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
+import ReactDOM from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Download, Share2, Trash2, Calendar, FileText, Lock, Loader2, AlertCircle, Unlock } from 'lucide-react';
+import { X, Calendar, FileText, Lock, Loader2, AlertCircle, Unlock } from 'lucide-react';
 import type { VaultImage } from '../types';
 import { LoadingSpinner } from './LoadingSpinner';
-import toast from 'react-hot-toast';
+// import toast from 'react-hot-toast';
 
 interface ImageViewerModalProps {
     image: VaultImage;
@@ -16,6 +17,7 @@ export function ImageViewerModal({ image, isOpen, onClose, decryptedImageUrl }: 
     const [imageLoading, setImageLoading] = useState(true);
     const [decrypting, setDecrypting] = useState(false);
     const [localDecryptedUrl, setLocalDecryptedUrl] = useState<string | null>(decryptedImageUrl || null);
+    const [showDetails, setShowDetails] = useState(false);
 
     // Only decrypt if not already decrypted
     React.useEffect(() => {
@@ -35,21 +37,21 @@ export function ImageViewerModal({ image, isOpen, onClose, decryptedImageUrl }: 
         }
     }, [isOpen, image, decryptedImageUrl, localDecryptedUrl]);
 
-    const handleDownload = () => {
-        toast.success('Download started');
-        // In real implementation, download the decrypted image
-    };
+    // const handleDownload = () => {
+    //     toast.success('Download started');
+    //     // In real implementation, download the decrypted image
+    // };
 
-    const handleShare = () => {
-        toast.success('Share link copied to clipboard');
-        // In real implementation, generate secure share link
-    };
+    // const handleShare = () => {
+    //     toast.success('Share link copied to clipboard');
+    //     // In real implementation, generate secure share link
+    // };
 
-    const handleDelete = () => {
-        toast.success('Image deleted successfully');
-        onClose();
-        // In real implementation, delete from IPFS and blockchain
-    };
+    // const handleDelete = () => {
+    //     toast.success('Image deleted successfully');
+    //     onClose();
+    //     // In real implementation, delete from IPFS and blockchain
+    // };
 
     const formatFileSize = (bytes: number) => {
         if (bytes === 0) return '0 Bytes';
@@ -69,22 +71,37 @@ export function ImageViewerModal({ image, isOpen, onClose, decryptedImageUrl }: 
         });
     };
 
-    return (
+    return ReactDOM.createPortal(
         <AnimatePresence>
             {isOpen && (
                 <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+                    className="fixed inset-0 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+                    style={{
+                        position: 'fixed',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        zIndex: 9999,
+                        margin: 0
+                    }}
                     onClick={onClose}
                 >
                     <motion.div
                         initial={{ opacity: 0, scale: 0.9, y: 20 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                        className="bg-gradient-to-br from-slate-800 to-slate-900 border border-white/20 rounded-xl overflow-hidden w-full max-w-4xl max-h-[90vh] flex flex-col"
+                        className="bg-gradient-to-br from-slate-800 to-slate-900 border border-white/20 rounded-xl overflow-hidden w-full max-w-4xl max-h-[90vh] flex flex-col relative"
                         onClick={(e) => e.stopPropagation()}
+                        style={{
+                            maxWidth: '1100px',
+                            maxHeight: '90vh',
+                            width: '100%',
+                            position: 'relative'
+                        }}
                     >
                         {/* Header */}
                         <div className="flex items-center justify-between p-6 border-b border-white/10">
@@ -105,39 +122,25 @@ export function ImageViewerModal({ image, isOpen, onClose, decryptedImageUrl }: 
                             </div>
 
                             <div className="flex items-center gap-2">
+                                {/* Mobile Details Toggle */}
                                 <button
-                                    onClick={handleDownload}
-                                    className="p-2 transition-colors rounded-lg hover:bg-white/10"
-                                    disabled={decrypting || !localDecryptedUrl}
+                                    onClick={() => setShowDetails(!showDetails)}
+                                    className="p-2 transition-colors rounded-lg md:hidden hover:bg-white/10"
                                 >
-                                    <Download className="w-5 h-5 text-gray-400" />
-                                </button>
-                                <button
-                                    onClick={handleShare}
-                                    className="p-2 transition-colors rounded-lg hover:bg-white/10"
-                                    disabled={decrypting || !localDecryptedUrl}
-                                >
-                                    <Share2 className="w-5 h-5 text-gray-400" />
-                                </button>
-                                <button
-                                    onClick={handleDelete}
-                                    className="p-2 text-red-400 transition-colors rounded-lg hover:bg-red-500/20"
-                                    disabled={decrypting}
-                                >
-                                    <Trash2 className="w-5 h-5" />
+                                    <FileText className="w-5 h-5 text-gray-400" />
                                 </button>
                                 <button
                                     onClick={onClose}
-                                    className="p-2 transition-colors rounded-lg hover:bg-white/10"
+                                    className="p-2 ml-2 transition-colors rounded-lg hover:bg-white/10"
                                 >
-                                    <X className="w-5 h-5 text-gray-400" />
+                                    <X className="w-5 h-5 text-white" />
                                 </button>
                             </div>
                         </div>
 
-                        <div className="flex flex-1 overflow-hidden">
+                        <div className="flex flex-col flex-1 overflow-hidden md:flex-row">
                             {/* Image Display */}
-                            <div className="flex items-center justify-center flex-1 p-6 bg-black/20">
+                            <div className={`flex-1 flex items-center justify-center p-6 bg-black/20 ${showDetails ? 'hidden md:flex' : 'flex'}`}>
                                 {decrypting ? (
                                     <div className="text-center">
                                         <div className="mb-4">
@@ -187,7 +190,7 @@ export function ImageViewerModal({ image, isOpen, onClose, decryptedImageUrl }: 
                             </div>
 
                             {/* Image Info Sidebar */}
-                            <div className="flex flex-col p-6 border-l w-80 bg-white/5 border-white/10">
+                            <div className={`w-full md:w-80 bg-white/5 border-t md:border-t-0 md:border-l border-white/10 p-6 flex flex-col ${showDetails ? 'flex' : 'hidden md:flex'}`}>
                                 <h3 className="flex items-center gap-2 mb-4 text-lg font-semibold text-white">
                                     <FileText className="w-5 h-5 text-teal-400" />
                                     Image Details
@@ -243,16 +246,7 @@ export function ImageViewerModal({ image, isOpen, onClose, decryptedImageUrl }: 
                                 </div>
 
                                 {/* Action Buttons */}
-                                <div className="mt-6 space-y-3">
-                                    <button
-                                        onClick={handleDownload}
-                                        disabled={decrypting || !localDecryptedUrl}
-                                        className="flex items-center justify-center w-full gap-2 px-4 py-3 font-medium text-white transition-all duration-200 rounded-lg bg-gradient-to-r from-teal-600 to-blue-600 hover:from-teal-700 hover:to-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                                    >
-                                        <Download className="w-4 h-4" />
-                                        Download Original
-                                    </button>
-
+                                {/* <div className="mt-6 space-y-3">
                                     <button
                                         onClick={handleShare}
                                         disabled={decrypting || !localDecryptedUrl}
@@ -261,21 +255,13 @@ export function ImageViewerModal({ image, isOpen, onClose, decryptedImageUrl }: 
                                         <Share2 className="w-4 h-4" />
                                         Generate Share Link
                                     </button>
-
-                                    <button
-                                        onClick={handleDelete}
-                                        disabled={decrypting}
-                                        className="flex items-center justify-center w-full gap-2 px-4 py-3 font-medium text-red-400 transition-colors rounded-lg bg-red-600/20 hover:bg-red-600/30 disabled:opacity-50 disabled:cursor-not-allowed"
-                                    >
-                                        <Trash2 className="w-4 h-4" />
-                                        Delete Image
-                                    </button>
-                                </div>
+                                </div> */}
                             </div>
                         </div>
                     </motion.div>
                 </motion.div>
             )}
-        </AnimatePresence>
+        </AnimatePresence>,
+        document.body
     );
 }

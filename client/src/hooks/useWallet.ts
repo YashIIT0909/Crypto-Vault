@@ -107,10 +107,21 @@ export function useWallet() {
                     const accounts = await provider.listAccounts();
 
                     if (accounts.length > 0) {
+                        // Ensure address is always a string
+                        const address = typeof accounts[0] === 'string' ? accounts[0] : accounts[0].address;
+                        const signer = await provider.getSigner();
+                        let contract;
+                        try {
+                            contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
+                        } catch (e) {
+                            contract = undefined;
+                        }
                         setWallet(prev => ({
                             ...prev,
-                            address: accounts[0].address,
+                            address,
                             isConnected: true,
+                            signer,
+                            contract,
                         }));
                     }
                 } catch (error) {

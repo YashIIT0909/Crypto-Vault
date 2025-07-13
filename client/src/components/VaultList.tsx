@@ -276,10 +276,11 @@ export function VaultList({ selectedVault, onSelectVault, onCreateVault, refresh
 
                     {/* Sort */}
                     <div className="relative">
+
                         <select
                             value={sortBy}
                             onChange={(e) => setSortBy(e.target.value as 'newest' | 'oldest' | 'name' | 'images')}
-                            className="py-2 pl-4 pr-10 text-white border rounded-lg appearance-none cursor-pointer bg-white/10 border-white/20 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500"
+                            className="relative w-full py-2 pl-4 pr-10 text-white border rounded-lg appearance-none cursor-pointer bg-white/10 border-white/20 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500"
                         >
                             <option value="newest">Newest First</option>
                             <option value="oldest">Oldest First</option>
@@ -290,6 +291,8 @@ export function VaultList({ selectedVault, onSelectVault, onCreateVault, refresh
                             {getSortIcon()}
                         </div>
                     </div>
+
+
                 </div>
             </div>
 

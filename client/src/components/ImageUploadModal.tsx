@@ -225,7 +225,7 @@ export function ImageUploadModal({ isOpen, onClose, vault, onImageUploaded, onVa
                         initial={{ opacity: 0, scale: 0.9, y: 20 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                        className="bg-gradient-to-br from-slate-800 to-slate-900 border border-white/20 rounded-xl p-6 w-full max-w-2xl max-h-[90vh] overflow-hidden"
+                        className="bg-gradient-to-br from-slate-800 to-slate-900 border border-white/20 rounded-xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto"
                         onClick={(e) => e.stopPropagation()}
                     >
                         <div className="flex items-center justify-between mb-6">

@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Plus, Shield, Image, Users, Settings, User, Copy, ExternalLink } from 'lucide-react';
+import { Plus, Shield, Image, Users, User, Copy, ExternalLink } from 'lucide-react';
 import { VaultList } from '../components/VaultList';
 import { VaultImageGallery } from '../components/VaultImageGallery';
 import { CreateVaultModal } from '../components/CreateVaultModal';
 import { ImageUploadModal } from '../components/ImageUploadModal';
 import { AccessControlModal } from '../components/AccessControlModal';
 import { WalletDisconnectedModal } from '../components/WalletDisconnectModal';
+
 import { useWallet } from '../hooks/useWallet';
 import type { Vault } from '../types';
 import toast from 'react-hot-toast';
@@ -18,6 +19,7 @@ export const Dashboard = () => {
     const [showUploadModal, setShowUploadModal] = useState(false);
     const [showAccessModal, setShowAccessModal] = useState(false);
     const [showDisconnectedModal, setShowDisconnectedModal] = useState(false);
+
     const [wasConnected, setWasConnected] = useState(false);
     const [refreshVaults, setRefreshVaults] = useState(false);
     const [refreshImages, setRefreshImages] = useState(false);
@@ -27,12 +29,15 @@ export const Dashboard = () => {
         if (isConnected) {
             setWasConnected(true);
             setShowDisconnectedModal(false);
+
         } else if (wasConnected && !isConnected) {
             // Wallet was connected but now disconnected
             setShowDisconnectedModal(true);
+
             setSelectedVault(null); // Clear selected vault
         }
     }, [isConnected, wasConnected]);
+
 
     const stats = [
         {
@@ -52,13 +57,7 @@ export const Dashboard = () => {
             label: 'Shared Access',
             value: '34',
             color: 'from-teal-500 to-teal-600',
-        },
-        {
-            icon: Settings,
-            label: 'Active Groups',
-            value: '8',
-            color: 'from-orange-500 to-orange-600',
-        },
+        }
     ];
 
     const formatAddress = (addr: string) => {
@@ -95,6 +94,10 @@ export const Dashboard = () => {
             />
         );
     }
+
+    // Don't render dashboard if contract is undefined but wallet is connected
+
+
     const handleCreateVault = () => {
         setShowCreateModal(true);
     };
@@ -274,6 +277,8 @@ export const Dashboard = () => {
                     isOpen={showDisconnectedModal}
                     onReconnect={handleReconnect}
                 />
+
+
             </div>
         </div>
     );

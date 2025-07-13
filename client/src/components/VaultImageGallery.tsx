@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Image, Download, Eye, Calendar, Lock, Loader2, AlertCircle, Search, Filter, Grid, List, Upload, Sparkles, Shield, Plus, Database, Key, Unlock } from 'lucide-react';
+import { Image, Download, Eye, Calendar, Lock, Loader2, Search, Grid, List, Upload, Sparkles, Shield, Database, Key, Unlock } from 'lucide-react';
 import type { Vault, VaultImage } from '../types';
 import { LoadingSpinner } from './LoadingSpinner';
 import { ImageViewerModal } from './ImageViewerModal';
@@ -39,13 +39,13 @@ export function VaultImageGallery({ vault, onUploadClick, refreshTrigger, refres
             try {
                 const groupId = '0x0000000000000000000000000000000000000000000000000000000000000000'; // default group
 
+                console.log(contract);
 
                 if (!contract) {
                     throw new Error('Wallet contract not available');
                 }
                 const ipfsHashes: string[] = await contract.getImages(vault.id, groupId);
-
-                console.log(ipfsHashes)
+                console.log(ipfsHashes);
                 console.log('Fetched IPFS hashes:', ipfsHashes);
                 if (!ipfsHashes || ipfsHashes.length === 0) {
                     setImages([]);
@@ -259,7 +259,7 @@ export function VaultImageGallery({ vault, onUploadClick, refreshTrigger, refres
 
                 {/* Controls - Only show when there are images */}
                 {images.length > 0 && (
-                    <div className="flex items-center gap-3">
+                    <div className="flex flex-col items-stretch w-full gap-3 sm:flex-row sm:items-center sm:w-auto">
                         {/* Search */}
                         <div className="relative">
                             <Search className="absolute w-4 h-4 text-gray-400 transform -translate-y-1/2 left-3 top-1/2" />
@@ -268,37 +268,39 @@ export function VaultImageGallery({ vault, onUploadClick, refreshTrigger, refres
                                 placeholder="Search images..."
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
-                                className="w-48 py-2 pl-10 pr-4 text-white placeholder-gray-400 border rounded-lg bg-white/10 border-white/20 focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
+                                className="w-full py-2 pl-10 pr-4 text-white placeholder-gray-400 border rounded-lg bg-white/10 border-white/20 focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500 sm:w-48"
                             />
                         </div>
 
-                        {/* Sort */}
-                        <select
-                            value={sortBy}
-                            onChange={(e) => setSortBy(e.target.value as 'newest' | 'oldest' | 'name')}
-                            className="px-3 py-2 text-white border rounded-lg bg-white/10 border-white/20 focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
-                        >
-                            <option value="newest">Newest First</option>
-                            <option value="oldest">Oldest First</option>
-                            <option value="name">Name A-Z</option>
-                        </select>
+                        <div className="flex items-center gap-3">
+                            {/* Sort */}
+                            <select
+                                value={sortBy}
+                                onChange={(e) => setSortBy(e.target.value as 'newest' | 'oldest' | 'name')}
+                                className="flex-1 px-3 py-2 text-white border rounded-lg sm:flex-none bg-white/10 border-white/20 focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
+                            >
+                                <option value="newest">Newest First</option>
+                                <option value="oldest">Oldest First</option>
+                                <option value="name">Name A-Z</option>
+                            </select>
 
-                        {/* View Mode */}
-                        <div className="flex items-center p-1 rounded-lg bg-white/10">
-                            <button
-                                onClick={() => setViewMode('grid')}
-                                className={`p-2 rounded-md transition-colors ${viewMode === 'grid' ? 'bg-teal-600 text-white' : 'text-gray-400 hover:text-gray-300'
-                                    }`}
-                            >
-                                <Grid className="w-4 h-4" />
-                            </button>
-                            <button
-                                onClick={() => setViewMode('list')}
-                                className={`p-2 rounded-md transition-colors ${viewMode === 'list' ? 'bg-teal-600 text-white' : 'text-gray-400 hover:text-gray-300'
-                                    }`}
-                            >
-                                <List className="w-4 h-4" />
-                            </button>
+                            {/* View Mode */}
+                            <div className="flex items-center p-1 rounded-lg bg-white/10">
+                                <button
+                                    onClick={() => setViewMode('grid')}
+                                    className={`p-2 rounded-md transition-colors ${viewMode === 'grid' ? 'bg-teal-600 text-white' : 'text-gray-400 hover:text-gray-300'
+                                        }`}
+                                >
+                                    <Grid className="w-4 h-4" />
+                                </button>
+                                <button
+                                    onClick={() => setViewMode('list')}
+                                    className={`p-2 rounded-md transition-colors ${viewMode === 'list' ? 'bg-teal-600 text-white' : 'text-gray-400 hover:text-gray-300'
+                                        }`}
+                                >
+                                    <List className="w-4 h-4" />
+                                </button>
+                            </div>
                         </div>
                     </div>
                 )}
@@ -787,27 +789,27 @@ export function VaultImageGallery({ vault, onUploadClick, refreshTrigger, refres
 
                                         <div className="flex-1 min-w-0">
                                             <h3 className="mb-1 font-medium text-white truncate">{image.filename}</h3>
-                                            <div className="flex items-center gap-4 text-sm text-gray-400">
+                                            <div className="flex flex-col gap-2 text-sm text-gray-400 sm:flex-row sm:items-center sm:gap-4">
                                                 <span>{formatFileSize(image.size)}</span>
                                                 <div className="flex items-center gap-1">
                                                     <Calendar className="w-3 h-3" />
                                                     {formatDate(image.uploadedAt)}
                                                 </div>
-                                                <div className="flex items-center gap-1">
+                                                <div className="flex items-center gap-2">
                                                     {decryptedImages[image.id] ? (
                                                         <>
                                                             <Unlock className="w-3 h-3 text-green-400" />
-                                                            <span className="text-green-400">Decrypted</span>
+                                                            <span className="font-medium text-green-400">Decrypted</span>
                                                         </>
                                                     ) : decryptingImages[image.id] ? (
                                                         <>
                                                             <Loader2 className="w-3 h-3 text-teal-400 animate-spin" />
-                                                            <span className="text-teal-400">Decrypting</span>
+                                                            <span className="font-medium text-teal-400">Decrypting</span>
                                                         </>
                                                     ) : (
                                                         <>
                                                             <Lock className="w-3 h-3 text-purple-300" />
-                                                            <span className="text-purple-300">Encrypted</span>
+                                                            <span className="font-medium text-purple-300">Encrypted</span>
                                                         </>
                                                     )}
                                                 </div>
@@ -829,7 +831,7 @@ export function VaultImageGallery({ vault, onUploadClick, refreshTrigger, refres
                                             >
                                                 <Eye className="w-4 h-4 text-white" />
                                             </button>
-                                            <button
+                                            {/* <button
                                                 onClick={(e) => {
                                                     e.stopPropagation();
                                                     toast.success('Download started');
@@ -838,7 +840,7 @@ export function VaultImageGallery({ vault, onUploadClick, refreshTrigger, refres
                                                 disabled={!decryptedImages[image.id]}
                                             >
                                                 <Download className="w-4 h-4 text-white" />
-                                            </button>
+                                            </button> */}
                                         </div>
                                     </>
                                 )}
