@@ -35,7 +35,7 @@ export function AccessControlModal({ isOpen, onClose, vault }: AccessControlModa
     }, [isOpen, vault.id]);
 
     const fetchUsers = async () => {
-        const res = await axios.get(`http://localhost:8000/api/vault/${vault.id}/users`)
+        const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/vault/${vault.id}/users`)
 
         const users: UserAccess[] = res.data.allowedUsers.filter((entry: any) =>
             !entry.expiresAt || new Date(entry.expiresAt) > new Date() // Filter out expired users
@@ -70,7 +70,7 @@ export function AccessControlModal({ isOpen, onClose, vault }: AccessControlModa
         setLoading(true);
         try {
             // Simulate API call
-            const res = await axios.post('http://localhost:8000/api/grant-user-access', {
+            const res = await axios.post(`${process.env.REACT_APP_API_URL}/api/grant-user-access`, {
                 vaultId: vault.id,
                 userAddress: newUserAddress,
                 expiresAt: expirationDate ? new Date(expirationDate) : undefined,
@@ -111,7 +111,7 @@ export function AccessControlModal({ isOpen, onClose, vault }: AccessControlModa
         setLoading(true);
         try {
 
-            const res = await axios.post('http://localhost:8000/api/revoke-user-access', {
+            const res = await axios.post(`${process.env.REACT_APP_API_URL}/api/revoke-user-access`, {
                 vaultId: vault.id,
                 userAddress,
             });

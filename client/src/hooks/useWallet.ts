@@ -31,7 +31,7 @@ export function useWallet() {
             const message = `Welcome to our DApp! Please sign this message to connect your wallet.`;
             const signature = await signer.signMessage(message);
 
-            const res = await axios.post("http://localhost:8000/api/authentication", {
+            const res = await axios.post(`${process.env.REACT_APP_API_URL}/api/authentication`, {
                 userAddress: address,
                 signature: signature
             },
@@ -52,7 +52,7 @@ export function useWallet() {
 
                 console.log(encryptedKey);
 
-                const res = await axios.post("http://localhost:8000/api/storekey", {
+                const res = await axios.post(`${process.env.REACT_APP_API_URL}/api/storekey`, {
                     userAddress: address,
                     encryptedKey: encryptedKey
                 });

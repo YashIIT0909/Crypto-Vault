@@ -41,7 +41,7 @@ export function CreateVaultModal({ isOpen, onClose, onVaultCreated }: CreateVaul
             const tx = await contract.createVault();
             const receipt = await tx.wait();
 
-            console.log('Transaction receipt:', receipt);
+            // console.log('Transaction receipt:', receipt);
 
 
             const vaultCreatedEvent = receipt.logs
@@ -54,7 +54,7 @@ export function CreateVaultModal({ isOpen, onClose, onVaultCreated }: CreateVaul
                 })
                 .find((parsed: { name: string; }) => parsed?.name === 'VaultCreated');
 
-            console.log('Parsed VaultCreated event:', vaultCreatedEvent);
+            // console.log('Parsed VaultCreated event:', vaultCreatedEvent);
 
 
             if (!vaultCreatedEvent) {
@@ -63,17 +63,17 @@ export function CreateVaultModal({ isOpen, onClose, onVaultCreated }: CreateVaul
 
             const vaultId = vaultCreatedEvent.args.vaultId.toString();
 
-            console.log('Vault ID:', vaultId);
+            // console.log('Vault ID:', vaultId);
 
 
-            const res = await axios.post('http://localhost:8000/api/vault', {
+            const res = await axios.post(`${process.env.REACT_APP_API_URL}/api/vault`, {
                 vaultId: vaultId,
                 vaultName: name,
                 description: description,
                 owner: address
             });
 
-            console.log('Vault created response:', res.data);
+            // console.log('Vault created response:', res.data);
 
 
             toast.success('Vault created successfully!');

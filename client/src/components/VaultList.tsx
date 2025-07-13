@@ -30,7 +30,7 @@ export function VaultList({ selectedVault, onSelectVault, onCreateVault, refresh
             if (!address) return;
 
             try {
-                const res = await axios.get(`http://localhost:8000/api/vault/${address}`);
+                const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/vault/${address}`);
                 console.log("Fetched vaults:", res.data.vaults);
                 const fetchedVaults = res.data.vaults.map((v: any) => ({
                     ...v,

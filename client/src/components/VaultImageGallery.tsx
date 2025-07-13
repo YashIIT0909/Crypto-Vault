@@ -39,14 +39,14 @@ export function VaultImageGallery({ vault, onUploadClick, refreshTrigger, refres
             try {
                 const groupId = '0x0000000000000000000000000000000000000000000000000000000000000000'; // default group
 
-                console.log(contract);
+                // console.log(contract);
 
                 if (!contract) {
                     throw new Error('Wallet contract not available');
                 }
                 const ipfsHashes: string[] = await contract.getImages(vault.id, groupId);
-                console.log(ipfsHashes);
-                console.log('Fetched IPFS hashes:', ipfsHashes);
+                // console.log(ipfsHashes);
+                // console.log('Fetched IPFS hashes:', ipfsHashes);
                 if (!ipfsHashes || ipfsHashes.length === 0) {
                     setImages([]);
                     return;
@@ -57,7 +57,7 @@ export function VaultImageGallery({ vault, onUploadClick, refreshTrigger, refres
                         ipfsHashes.map(async (hash) => {
                             try {
                                 // 1. Fetch metadata from your backend DB
-                                const res = await axios.get(`http://localhost:8000/api/vaults/${vault.id}/images/${hash}`, { withCredentials: true });
+                                const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/vaults/${vault.id}/images/${hash}`, { withCredentials: true });
                                 const metadata = res.data;
                                 // 2. Fetch encrypted symmetric key
 
@@ -112,7 +112,7 @@ export function VaultImageGallery({ vault, onUploadClick, refreshTrigger, refres
 
         try {
             // Simulate decryption process
-            const vaultOwner = await axios.get(`http://localhost:8000/api/getVaultOwner/${vault.id}`);
+            const vaultOwner = await axios.get(`${process.env.REACT_APP_API_URL}/api/getVaultOwner/${vault.id}`);
             const ownerAddress = vaultOwner.data.owner.toLowerCase();
             console.log(ownerAddress);
             const encryptedKey = await fetchEncryptedKey(ownerAddress, vault.id); // Assume this function fetches the key
@@ -132,7 +132,7 @@ export function VaultImageGallery({ vault, onUploadClick, refreshTrigger, refres
             }
             console.log('Decrypted symmetric key:', symmetricKey);
 
-            const imageData = await axios.get(`http://localhost:8000/api/images/${image.ipfsHash}`, {
+            const imageData = await axios.get(`${process.env.REACT_APP_API_URL}/api/images/${image.ipfsHash}`, {
                 responseType: 'blob',
                 withCredentials: true
             });

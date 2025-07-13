@@ -97,7 +97,7 @@ export function ImageUploadModal({ isOpen, onClose, vault, onImageUploaded, onVa
             if (!encryptedKey) {
                 throw new Error('Failed to fetch encryption key');
             }
-            console.log('Fetched encrypted key:', encryptedKey);
+            // console.log('Fetched encrypted key:', encryptedKey);
 
             setProgress({
                 stage: 'decrypting key',
@@ -116,7 +116,7 @@ export function ImageUploadModal({ isOpen, onClose, vault, onImageUploaded, onVa
             if (!symmetricKey) {
                 throw new Error('Failed to decrypt symmetric key');
             }
-            console.log('Decrypted symmetric key:', symmetricKey);
+            // console.log('Decrypted symmetric key:', symmetricKey);
 
             // Stage 1: Encrypting
             setProgress({
@@ -129,7 +129,7 @@ export function ImageUploadModal({ isOpen, onClose, vault, onImageUploaded, onVa
             if (!encryptedData) {
                 throw new Error('Failed to encrypt file');
             }
-            console.log('Encrypted file data:', encryptedData);
+            // console.log('Encrypted file data:', encryptedData);
 
 
             // Stage 2: Uploading to IPFS
@@ -146,7 +146,7 @@ export function ImageUploadModal({ isOpen, onClose, vault, onImageUploaded, onVa
             formData.append('originalName', selectedFile.name);
             formData.append('originalSize', selectedFile.size.toString());
 
-            const res = await axios.post("http://localhost:8000/api/upload", formData, {
+            const res = await axios.post(`${process.env.REACT_APP_API_URL}/api/upload`, formData, {
                 withCredentials: true,
             });
 
@@ -154,7 +154,7 @@ export function ImageUploadModal({ isOpen, onClose, vault, onImageUploaded, onVa
                 throw new Error('Failed to upload file to IPFS');
             }
 
-            console.log('File uploaded to IPFS:', res.data);
+            // console.log('File uploaded to IPFS:', res.data);
 
             // Stage 3: Saving to blockchain
             setProgress({
