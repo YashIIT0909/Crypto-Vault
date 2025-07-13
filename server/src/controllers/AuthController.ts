@@ -42,7 +42,8 @@ export const AuthController = asyncHandler(async (req: Request, res: Response, n
 
         const options = {
             httpOnly: true,
-            secure: true
+            secure: true,
+            sameSite: 'None'
         }
 
         res.status(200)
