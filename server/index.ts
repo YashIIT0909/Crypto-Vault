@@ -17,7 +17,7 @@ import userAccessRoute from "./src/routes/UserAccess.routes";
 const app = express();
 
 app.use(cors({
-    origin: 'http://localhost:5173',
+    origin: process.env.CORS_ORIGIN, // Default to localhost if not set
     credentials: true, // This allows setting cookies and headers
 }));
 app.use(express.json());
