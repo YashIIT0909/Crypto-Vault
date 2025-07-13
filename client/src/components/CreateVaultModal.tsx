@@ -66,7 +66,7 @@ export function CreateVaultModal({ isOpen, onClose, onVaultCreated }: CreateVaul
             // console.log('Vault ID:', vaultId);
 
 
-            const res = await axios.post(`${process.env.VITE_API_URL}/api/vault`, {
+            const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/vault`, {
                 vaultId: vaultId,
                 vaultName: name,
                 description: description,

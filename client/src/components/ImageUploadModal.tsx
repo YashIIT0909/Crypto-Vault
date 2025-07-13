@@ -146,7 +146,7 @@ export function ImageUploadModal({ isOpen, onClose, vault, onImageUploaded, onVa
             formData.append('originalName', selectedFile.name);
             formData.append('originalSize', selectedFile.size.toString());
 
-            const res = await axios.post(`${process.env.VITE_API_URL}/api/upload`, formData, {
+            const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/upload`, formData, {
                 withCredentials: true,
             });
 
