@@ -31,7 +31,7 @@ export function VaultList({ selectedVault, onSelectVault, onCreateVault, refresh
 
             try {
                 const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/vault/${address}`);
-                console.log("Fetched vaults:", res.data.vaults);
+                // console.log("Fetched vaults:", res.data.vaults);
                 const fetchedVaults = res.data.vaults.map((v: any) => ({
                     ...v,
                     id: v.vaultId,

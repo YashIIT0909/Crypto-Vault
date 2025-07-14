@@ -105,8 +105,8 @@ export function ImageUploadModal({ isOpen, onClose, vault, onImageUploaded, onVa
                 message: `Decrypting key...`,
             });
 
-            console.log(`Address: ${address}`);
-            console.log("Vault", vault)
+            // console.log(`Address: ${address}`);
+            // console.log("Vault", vault)
 
             if (!address) {
                 throw new Error('Wallet address is not available');

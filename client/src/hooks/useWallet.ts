@@ -38,25 +38,28 @@ export function useWallet() {
                 {
                     withCredentials: true,
                 })
-            console.log(res.data);
+            // console.log(res.data);
 
             const { encryptedKey } = res.data;
 
             if (!encryptedKey) {
                 const symKey = await generateSymmetricKey();
 
-                console.log("Generated symmetric key:", symKey);
-                console.log("address:", address);
+                // console.log("Generated symmetric key:", symKey);
+                // console.log("address:", address);
 
                 const encryptedKey = await encryptSymmetricKey(symKey, address)
 
-                console.log(encryptedKey);
+                // console.log(encryptedKey);
 
                 const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/storekey`, {
                     userAddress: address,
                     encryptedKey: encryptedKey
                 });
-                console.log("Server response:", res.data);
+                // console.log("Server response:", res.data);
+                if (res.status !== 200) {
+                    throw new Error('Failed to store symmetric key on server');
+                }
             }
 
             const contract = new ethers.Contract(
@@ -73,7 +76,7 @@ export function useWallet() {
                 signer,
                 contract,
             });
-            console.log(contract);
+            // console.log(contract);
 
             toast.success('Wallet connected successfully!');
 

@@ -114,12 +114,12 @@ export function VaultImageGallery({ vault, onUploadClick, refreshTrigger, refres
             // Simulate decryption process
             const vaultOwner = await axios.get(`${import.meta.env.VITE_API_URL}/api/getVaultOwner/${vault.id}`);
             const ownerAddress = vaultOwner.data.owner.toLowerCase();
-            console.log(ownerAddress);
+            // console.log(ownerAddress);
             const encryptedKey = await fetchEncryptedKey(ownerAddress, vault.id); // Assume this function fetches the key
             if (!encryptedKey) {
                 throw new Error('Failed to fetch encryption key');
             }
-            console.log('Fetched encrypted key:', encryptedKey);
+            // console.log('Fetched encrypted key:', encryptedKey);
 
             if (!address) {
                 throw new Error('Wallet address is not available');
@@ -130,7 +130,7 @@ export function VaultImageGallery({ vault, onUploadClick, refreshTrigger, refres
             if (!symmetricKey) {
                 throw new Error('Failed to decrypt symmetric key');
             }
-            console.log('Decrypted symmetric key:', symmetricKey);
+            // console.log('Decrypted symmetric key:', symmetricKey);
 
             const imageData = await axios.get(`${import.meta.env.VITE_API_URL}/api/images/${image.ipfsHash}`, {
                 responseType: 'blob',
@@ -140,21 +140,21 @@ export function VaultImageGallery({ vault, onUploadClick, refreshTrigger, refres
             if (!imageData || !imageData.data) {
                 throw new Error('Failed to fetch image data');
             }
-            console.log(imageData.data instanceof Blob); // should be true
+            // console.log(imageData.data instanceof Blob); // should be true
 
-            console.log('Fetched image data:', imageData.data);
+            // console.log('Fetched image data:', imageData.data);
 
 
             // Decrypt the image data using the symmetric key
             const decryptedBuffer = await decryptFileWithKey(imageData.data, symmetricKey);
-            console.log('Decrypted image buffer:', decryptedBuffer);
+            // console.log('Decrypted image buffer:', decryptedBuffer);
 
             const blob = new Blob([decryptedBuffer], { type: image.mimeType || 'image/jpeg' || 'image/png' });
-            console.log('Decrypted image blob:', blob);
+            // console.log('Decrypted image blob:', blob);
 
             // Create a URL for the decrypted image
             const decryptedImageUrl = URL.createObjectURL(blob);
-            console.log('Decrypted image URL:', decryptedImageUrl);
+            // console.log('Decrypted image URL:', decryptedImageUrl);
 
 
             // Simulate decryption of the image data

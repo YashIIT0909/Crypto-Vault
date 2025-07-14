@@ -22,7 +22,7 @@ export function CreateVaultModal({ isOpen, onClose, onVaultCreated }: CreateVaul
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        console.log("Submit button clicked", contract);
+        // console.log("Submit button clicked", contract);
 
 
         if (!name.trim()) {
